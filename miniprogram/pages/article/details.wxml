@@ -1,0 +1,37 @@
+<!--pages/article/details.wxml-->
+<wxs src="./../utils.wxs" module="utils" />
+
+<view class="page">
+  <view class="page__bd">
+    <scroll-view style="height: calc(100vh - 100rpx)" scroll-y scroll-with-animation enable-back-to-top>
+      <view class="weui-article">
+        <view class="weui-article__head">
+          <view class="weui-article__h1">{{article.title}}</view>
+          <view class="weui-article__info">
+            <view class="weui-article__info__meta">
+              {{utils.formatReadCount(article.current_read_count)}} 阅读
+            </view>
+            <view class="weui-article__info__meta">0 评论</view>
+            <view class="weui-article__info__meta weui-media-box__info__meta_extra">
+              {{utils.computeDiffTime(article.created_at)}}
+            </view>
+          </view>
+        </view>
+        <view class="weui-article__section">
+          <htmltowxml text="{{article.content}}" type="markdown" highlight highlightStyle="darcula" highlightLanguages="{{highlightLanguages}}" bindWxmlTagATap="wxmlTagATap"></htmltowxml>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="comment">
+      <view class="comment__input-box">
+        <input type="text" class="comment__input" placeholder="写评论" bindconfirm="sendComment" />
+      </view>
+      <view class="comment__icon-box">
+        <image src="/images/icon/comment.png" />
+        <image src="/images/icon/favorite.png" />
+        <image src="/images/icon/like.png" />
+      </view>
+    </view>
+  </view>
+</view>

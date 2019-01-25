@@ -1,0 +1,39 @@
+function formatReadCount(number) {
+  var u = ['w', 'k'];
+  var t = [10000, 1000];
+
+  for (var i = 0; i <= 1; i++) {
+    if (number >= t[i]) {
+      return ((number / t[i]).toFixed(1)) + u[i];
+    }
+  }
+
+  return number;
+}
+
+function computeDiffTime(time) {
+  var t = time.split(' ').join('T');
+  var diffSeconds = (Date.now() - Date.parse(t)) / 1000;
+
+  var u = ['年', '个月', '星期', '天', '小时', '分钟', '秒'];
+  var t = [31536000, 2592000, 604800, 86400, 3600, 60, 1];
+
+  if (diffSeconds > t[0]) {
+    return time;
+  }
+
+  for (var i = 1; i <= 6; i++) {
+    var inm = Math.floor(diffSeconds / t[i]);
+
+    if (inm !== 0) {
+      return inm + u[i] + '前';
+    }
+  }
+
+  return time;
+}
+
+module.exports = {
+  formatReadCount: formatReadCount,
+  computeDiffTime: computeDiffTime,
+};

@@ -1,0 +1,43 @@
+{
+  "pages": [
+    "pages/article/index",
+    "pages/article/details",
+    "pages/user/index",
+    "pages/webview/index"
+  ],
+  "window": {
+    "backgroundColor": "#F8F8F8",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "navigationBarTitleText": "平凡的博客",
+    "navigationBarTextStyle": "black"
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "connectSocket": 10000,
+    "uploadFile": 10000,
+    "downloadFile": 10000
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1890ff",
+    "backgroundColor": "#F8F8F8",
+    "borderStyle": "#e5e5e5",
+    "position": "bottom",
+    "list": [
+      {
+        "pagePath": "pages/article/index",
+        "text": "博文",
+        "iconPath": "images/icon/it.png",
+        "selectedIconPath": "images/icon/it_active.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "images/icon/user.png",
+        "selectedIconPath": "images/icon/user_active.png"
+      }
+    ]
+  },
+  "debug": true
+}
