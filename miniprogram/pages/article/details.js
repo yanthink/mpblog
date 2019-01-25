@@ -41,7 +41,7 @@ Page({
         if (!res.authSetting['scope.userInfo']) {
           wx.authorize({
             scope: 'scope.userInfo',
-            success: login, 
+            success: login,
           })
         } else {
           login()

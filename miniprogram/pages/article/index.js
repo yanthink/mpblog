@@ -15,23 +15,24 @@ Page({
     noMoreData: false,
   },
 
-  showInput: function() {
+  showInput: function () {
     this.setData({
       inputShowed: true
     })
   },
-  hideInput: function() {
+  hideInput: function () {
     this.setData({
       inputVal: "",
       inputShowed: false
     })
   },
-  clearInput: function() {
+  clearInput: function () {
     this.setData({
       inputVal: ""
     })
   },
-  onSearch: function(e) {
+  
+  onSearch: function (e) {
     this.setData({
       inputVal: e.detail.value
     })
@@ -39,7 +40,7 @@ Page({
     this.refresh()
   },
 
-  refresh () {
+  refresh() {
     if (this.data.loading) {
       return false;
     }
@@ -61,7 +62,7 @@ Page({
     this.setData({ loading: true })
 
     wx.request({
-      url: config.baseUrl + '/api/article?keyword=' + keyword +'&page=' + page + '&pageSize=' + pageSize,
+      url: config.baseUrl + '/api/article?keyword=' + keyword + '&page=' + page + '&pageSize=' + pageSize,
       headers: {
         Accept: 'application/x.sheng.v1+json',
         'Content-Type': 'application/json charset=utf-8',
