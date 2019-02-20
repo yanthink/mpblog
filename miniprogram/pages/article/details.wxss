@@ -1,24 +1,51 @@
 /* pages/article/details.wxss */
 
-page {
+page, .page {
   background-color: #fff;
+  height: 100%;
 }
 
-image {
-  margin: 4px 0;
+.page__body {
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.avatar {
+  border-radius: 50%;
+  width: 80rpx;
+  height: 80rpx;
+  margin: 0;
+}
+
+.dot {
+  padding: 0 10rpx;
+}
+
+.dot::before {
+  content: "·";
+}
+
+.content-box {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 文章头部开始 */
+
+.article__head-box {
+  padding: 0 20rpx;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .weui-article__h1 {
-  margin-bottom: 0.4em;
-}
-
-.weui-article__head {
-  border-bottom: 1px solid #e5e5e5;
-  margin-bottom: 40rpx;
+  margin-bottom: 10rpx;
 }
 
 .weui-article__info {
-  padding-bottom: 0.8em;
+  padding-bottom: 20rpx;
   font-size: 13px;
   color: #cecece;
   line-height: 1em;
@@ -31,41 +58,209 @@ image {
   padding-right: 1em;
 }
 
-.comment {
+.weui-article__section {
+  margin-bottom: 1em;
+}
+
+/* 文章头部结束 */
+
+/* 文章内容开始 */
+
+.article__content-box {
+  padding: 16rpx;
+}
+
+.article__content-box image {
+  margin: 4px 0;
+}
+
+/* 文章内容结束 */
+
+/* 点赞开始 */
+
+.like-btn {
+  height: 60rpx;
+  line-height: 60rpx;
+  display: inline-block;
+  text-indent: 20rpx;
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+  margin-top: 60rpx;
+}
+
+.like-btn image {
+  width: 40rpx;
+  height: 40rpx;
+  float: left;
+}
+
+/* 点赞结束 */
+
+/* 评论开始 */
+
+.comment-box {
+  border-top: 1rpx solid #d7d6dc;
+}
+
+.comment-title {
+  margin: 30rpx 16rpx 0 16rpx;
+  font-size: 26rpx;
+}
+
+.comment-item {
+  padding: 16rpx;
+  margin-right: 8rpx;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: #efeff4;
-  padding: 16rpx 20rpx;
-  box-sizing: border-box;
-  border-top: 1rpx solid #d7d6dc;
-  width: 100%;
-  height: 100rpx;
 }
 
-.comment__input-box, .comment__icon-box {
-  height: 68rpx;
+.comment__avatar-box {
+  width: 100rpx;
 }
 
-.comment__input-box {
+.comment__content-box {
   flex: 1;
 }
 
-.comment__icon-box {
-  padding-left: 18rpx;
+.comment__content__head, .comment__content__body, .comment__content__footer,
+.comment__content__mate {
+  margin-bottom: 10rpx;
 }
 
-.comment__input-box input {
-  height: 100%;
-  line-height: 100%;
-  padding-left: 8rpx;
+.comment__content__head {
+  font-size: 26rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.comment__content__head-name {
+  color: #696969;
+  flex: 1;
+}
+
+.comment__content__head-like image {
+  width: 30rpx;
+  height: 30rpx;
+  float: left;
+  margin: 6rpx 5rpx;
+}
+
+.comment__content__body .comment__content {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+}
+
+.comment__content__footer {
+  font-size: 22rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+}
+
+.comment__content__mate {
+  height: 50rpx;
+  line-height: 50rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 24rpx;
+}
+
+.comment__content__mate-perview {
+  flex: 1;
+}
+
+.comment__content__mate-perview .avatar {
+  width: 50rpx;
+  height: 50rpx;
+  float: left;
+  margin-right: 4rpx;
+}
+
+.comment__content__mate-perview-info {
+  display: inline;
+  margin-left: 10rpx;
+}
+
+.comment__content__mate-like image {
+  width: 30rpx;
+  height: 30rpx;
+  float: left;
+  margin: 10rpx 5rpx;
+}
+
+.has-reply {
+  background-color: #f2f2f2;
+  padding: 4rpx 26rpx;
+  border-radius: 30rpx;
+}
+
+/* 评论结束 */
+
+/* 评论表单开始 */
+
+.comment__form {
+  border-top: 1rpx solid #d7d6dc;
+  padding: 16rpx 20rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment__form .comment__textarea {
+  background-color: #efeff4;
+  border-radius: 32rpx;
+  padding: 16rpx;
   font-size: 14px;
-  background-color: #fff;
-  border-radius: 5rpx;
+  flex: 1;
 }
 
-.comment__icon-box image {
-  width: 54rpx;
-  height: 54rpx;
-  margin: 7rpx 12rpx;
+.comment__form__action-box {
+  height: 50rpx;
+}
+
+.comment__form__icon {
+  display: inline-block;
+  position: relative;
+}
+
+.comment__form__icon .weui-badge {
+  position: absolute;
+  top: -10rpx;
+  right: -20rpx;
+}
+
+.comment__form__action-box image {
+  width: 50rpx;
+  height: 50rpx;
+  margin-left: 20rpx;
+}
+
+.publish {
+  margin-left: 20rpx;
+  color: #179b16;
+}
+
+.publish.disable {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* 评论表单结束 */
+
+.getUserInfo-btn {
+  font-size: 30rpx;
+  color: #696969;
+  border: 0;
+  border-radius: 0;
+  padding-top: 10rpx;
+  padding-bottom: 10rpx;
+  background-color: #fff;
 }

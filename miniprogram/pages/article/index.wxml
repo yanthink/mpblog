@@ -4,7 +4,7 @@
 <view class="page">
   <view class="page__bd">
     <view class="weui-panel weui-panel_access">
-      <scroll-view style="height: 100vh" scroll-y scroll-with-animation enable-back-to-top bindscrolltolower="fetchMore" scroll-top="100rpx">
+      <scroll-view style="height: 100vh" scroll-y scroll-with-animation enable-back-to-top bindscrolltolower="fetchMore">
         <!--搜索框开始-->
         <view class="weui-search-bar">
           <view class="weui-search-bar__form">
@@ -33,9 +33,9 @@
                 <view class="weui-media-box__info__meta">
                   {{utils.formatReadCount(article.current_read_count)}} 阅读
                 </view>
-                <view class="weui-media-box__info__meta">0 评论</view>
+                <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                 <view class="weui-media-box__info__meta">
-                  {{utils.computeDiffTime(article.created_at)}}
+                  {{utils.showTime(article.created_at)}}
                 </view>
               </view>
             </navigator>
@@ -47,9 +47,9 @@
                     <view class="weui-media-box__info__meta">
                       {{utils.formatReadCount(article.current_read_count)}} 阅读
                     </view>
-                    <view class="weui-media-box__info__meta">0 评论</view>
+                    <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                     <view class="weui-media-box__info__meta">
-                      {{utils.computeDiffTime(article.created_at)}}
+                      {{utils.showTime(article.created_at)}}
                     </view>
                   </view>
                 </view>
@@ -71,7 +71,7 @@
                 <view class="weui-media-box__info__meta">
                   {{utils.formatReadCount(article.current_read_count)}} 阅读
                 </view>
-                <view class="weui-media-box__info__meta">0 评论</view>
+                <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                 <view class="weui-media-box__info__meta">
                   {{utils.computeDiffTime(article.created_at)}}
                 </view>

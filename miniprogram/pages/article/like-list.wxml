@@ -1,0 +1,40 @@
+<!--pages/article/like-list.wxml-->
+
+<view class="page">
+  <view class="page__bd page__body">
+    <view class="content-box">
+      <scroll-view style="height: 100%" scroll-y scroll-with-animation enable-back-to-top bindscrolltolower="fetchLike">
+        <!-- 点赞内容开始 -->
+        <view class="like-box" id="like-box">
+          <view class="like-item" wx:for="{{likes}}" wx:for-index="idx" wx:key="id" wx:for-item="like">
+            <view class="like__avatar-box">
+              <image class="avatar" src="{{like.user.user_info.avatarUrl}}" />
+            </view>
+
+            <view class="like__content-box">
+              <view class="like__content-name">
+                {{like.user.name}}
+              </view>
+            </view>
+          </view>
+        </view>
+        <!-- 点赞内容结束 -->
+
+        <!-- 加载状态开始 -->
+        <view class="page__bd weui-loadmore__box">
+          <view wx:if="{{loading}}" class="weui-loadmore" style="padding-bottom: 1.5em">
+            <view class="weui-loading"></view>
+            <view class="weui-loadmore__tips">正在加载...</view>
+          </view>
+        </view>
+        <!-- 加载状态结束 -->
+
+        <view wx:if="{{noMoreData}}" class="weui-loadmore__box">
+          <view class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">已显示全部点赞</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

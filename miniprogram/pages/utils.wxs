@@ -11,15 +11,19 @@ function formatReadCount(number) {
   return number;
 }
 
-function computeDiffTime(time) {
+function showTime(time, level = 1) {
   var t = time.split(' ').join('T');
-  var diffSeconds = (Date.now() - Date.parse(t)) / 1000;
+  var diffSeconds = (getDate().valueOf() - Date.parse(t)) / 1000;
 
   var u = ['年', '个月', '星期', '天', '小时', '分钟', '秒'];
   var t = [31536000, 2592000, 604800, 86400, 3600, 60, 1];
 
-  if (diffSeconds > t[0]) {
-    return time;
+  if (diffSeconds > t[level]) {
+    if (getDate().getFullYear() != time.substring(0, 4)) {
+      return time.substring(0, 16);
+    }
+
+    return time.substring(5, 16);
   }
 
   for (var i = 1; i <= 6; i++) {
@@ -35,5 +39,5 @@ function computeDiffTime(time) {
 
 module.exports = {
   formatReadCount: formatReadCount,
-  computeDiffTime: computeDiffTime,
+  showTime: showTime,
 };

@@ -1,8 +1,11 @@
 {
   "pages": [
+    "pages/user/index",
     "pages/article/index",
     "pages/article/details",
-    "pages/user/index",
+    "pages/article/comment-details",
+    "pages/article/like-list",
+    
     "pages/webview/index"
   ],
   "window": {
@@ -22,7 +25,7 @@
     "color": "#999999",
     "selectedColor": "#1890ff",
     "backgroundColor": "#F8F8F8",
-    "borderStyle": "#e5e5e5",
+    "borderStyle": "black",
     "position": "bottom",
     "list": [
       {

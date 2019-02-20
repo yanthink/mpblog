@@ -1,1 +1,33 @@
 /* pages/user/index.wxss */
+
+.userinfo {
+  background: #fff;
+  position: relative;
+  height: 320rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1rpx solid #d9d9d9;
+}
+
+.userinfo-avatar {
+  overflow: hidden;
+  width: 160rpx;
+  height: 160rpx;
+  margin: 20rpx;
+  margin-top: 50rpx;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.menu {
+  margin-top: 20rpx;
+}
+
+.menu .weui-cell__hd image {
+  margin-right: 5px;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+}

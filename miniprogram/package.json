@@ -1,0 +1,15 @@
+{
+  "name": "mpblog",
+  "version": "1.0.0",
+  "description": "博客小程序版",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yanthink",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.24.0",
+    "qs": "^6.6.0"
+  }
+}

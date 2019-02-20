@@ -2,36 +2,118 @@
 <wxs src="./../utils.wxs" module="utils" />
 
 <view class="page">
-  <view class="page__bd">
-    <scroll-view style="height: calc(100vh - 100rpx)" scroll-y scroll-with-animation enable-back-to-top>
-      <view class="weui-article">
-        <view class="weui-article__head">
-          <view class="weui-article__h1">{{article.title}}</view>
-          <view class="weui-article__info">
-            <view class="weui-article__info__meta">
-              {{utils.formatReadCount(article.current_read_count)}} 阅读
-            </view>
-            <view class="weui-article__info__meta">0 评论</view>
-            <view class="weui-article__info__meta weui-media-box__info__meta_extra">
-              {{utils.computeDiffTime(article.created_at)}}
+  <view class="page__bd page__body">
+    <view class="content-box">
+      <scroll-view style="height: 100%" scroll-y scroll-with-animation enable-back-to-top bindscrolltolower="fetchComment" scroll-into-view="{{anchorPoint}}">
+        <view class="article-box" id="article-box">
+          <!-- 文章头部开始 -->
+          <view class="weui-article__head article__head-box">
+            <view class="weui-article__h1">{{article.title}}</view>
+            <view class="weui-article__info">
+              <view class="weui-article__info__meta">
+                {{utils.formatReadCount(article.current_read_count)}} 阅读
+              </view>
+              <view class="weui-article__info__meta">0 评论</view>
+              <view class="weui-article__info__meta weui-media-box__info__meta_extra">
+                {{utils.showTime(article.created_at)}}
+              </view>
             </view>
           </view>
-        </view>
-        <view class="weui-article__section">
-          <htmltowxml text="{{article.content}}" type="markdown" highlight highlightStyle="darcula" highlightLanguages="{{highlightLanguages}}" bindWxmlTagATap="wxmlTagATap"></htmltowxml>
-        </view>
-      </view>
-    </scroll-view>
+          <!-- 文章头部结束 -->
 
-    <view class="comment">
-      <view class="comment__input-box">
-        <input type="text" class="comment__input" placeholder="写评论" bindconfirm="sendComment" />
+          <!-- 文章内容开始 -->
+          <view class="weui-article__section article__content-box">
+            <htmltowxml text="{{article.content}}" type="markdown" highlight highlightStyle="darcula" highlightLanguages="{{highlightLanguages}}" bindWxmlTagATap="wxmlTagATap" />
+
+            <view style="text-align: center; margin-top: 60rpx">
+              <button class="weui-btn like-btn" bindtap="tapLikeByArticle" type="default">
+                {{article.like_count}}
+                <image src="/images/icon/{{article.likes && article.likes.length > 0 ? 'like_active' : 'like'}}.png" />
+              </button>
+            </view>
+          </view>
+          <!-- 文章内容结束 -->
+
+          <!-- 评论内容开始 -->
+          <view class="comment-box" id="comment-box">
+            <view class="comment-title">全部评论（{{article.comment_count}}）</view>
+            <navigator class="comment-item" id="comment" url="comment-details?id={{comment.id}}" wx:for="{{comments}}" wx:for-index="idx" wx:key="id" wx:for-item="comment">
+              <view class="comment__avatar-box">
+                <image class="avatar" src="{{comment.user.user_info.avatarUrl}}" />
+              </view>
+              <view class="comment__content-box">
+                <view class="comment__content__head">
+                  <view class="comment__content__head-name">{{comment.user.name}}</view>
+                  <view class="comment__content__head-like" data-comment-id="{{comment.id}}" catchtap="tapLikeByComment">
+                    {{comment.like_count}}
+                    <image src="/images/icon/{{comment.likes && comment.likes.length > 0 ? 'like_active' : 'like'}}.png" />
+                  </view>
+                </view>
+                <view class="comment__content__body">
+                  <view class="comment__content">
+                    {{comment.content}}
+                  </view>
+                </view>
+                <view class="comment__content__footer">
+                  <view class="comment__content__footer__time">
+                    {{utils.showTime(comment.created_at, 5)}}
+                  </view>
+                  <view class="dot" />
+                  <view class="comment__content__footer__reply {{comment.reply_count ? 'has-reply' : ''}}">
+                    {{comment.reply_count || '' }}回复
+                  </view>
+                </view>
+              </view>
+            </navigator>
+          </view>
+          <!-- 评论内容结束 -->
+        </view>
+
+        <!-- 加载状态开始 -->
+        <view class="page__bd weui-loadmore__box">
+          <view wx:if="{{commentLoading}}" class="weui-loadmore" style="padding-bottom: 1.5em">
+            <view class="weui-loading"></view>
+            <view class="weui-loadmore__tips">正在加载...</view>
+          </view>
+        </view>
+        <!-- 加载状态结束 -->
+
+        <view wx:if="{{noMoreComment}}" class="weui-loadmore__box">
+          <view class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">已显示全部评论</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 评论表单开始 -->
+    <view wx:if="{{authSetting['scope.userInfo']}}" class="comment__form">
+      <textarea class="comment__textarea" placeholder="写评论..." value="{{commentContent}}" auto-height focus="{{commentFocus}}" bindfocus="onCommentFocus" bindblur="onCommentBlur" bindinput="onCommentContentChange" bindconfirm="sendComment" />
+      <view class="comment__form__action-box">
+        <view hidden="{{commentFocus}}">
+          <!-- 评论 -->
+          <view class="weui-cell__hd comment__form__icon" bindtap="scrollToComment">
+            <image src="/images/icon/comment.png" />
+            <view wx:if="{{article.comment_count > 0}}" class="weui-badge">{{article.comment_count}}</view>
+          </view>
+          <!-- 收藏 -->
+          <view class="weui-cell__hd comment__form__icon">
+            <image src="/images/icon/favorite.png" />
+          </view>
+          <!-- 点赞 -->
+          <view class="weui-cell__hd comment__form__icon" bindtap="tapLikeByArticle">
+            <image src="/images/icon/{{article.likes && article.likes.length > 0 ? 'like_active' : 'like'}}.png" />
+          </view>
+        </view>
+        <!-- 发布 -->
+        <view hidden="{{!commentFocus}}" class="publish {{commentContent.length > 0 ? '' : 'disable'}}" bindtap="sendComment">发布</view>
       </view>
-      <view class="comment__icon-box">
-        <image src="/images/icon/comment.png" />
-        <image src="/images/icon/favorite.png" />
-        <image src="/images/icon/like.png" />
-      </view>
+    </view>
+    <!-- 评论表单结束 -->
+    <view wx:else>
+      <button class="getUserInfo-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">
+        点击此处授权，即可评论文章😆
+      </button>
     </view>
   </view>
 </view>
