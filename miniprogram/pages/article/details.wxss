@@ -244,9 +244,10 @@ page, .page {
 
 .comment__form .comment__textarea {
   background-color: #efeff4;
-  border-radius: 32rpx;
+  border-radius: 10rpx;
   font-size: 14px;
   flex: 1;
+  text-indent: 1em;
 }
 
 .android__textarea {
