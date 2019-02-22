@@ -37,6 +37,7 @@ page, .page {
 
 .article__head-box {
   padding: 0 20rpx;
+  padding-top: 16rpx;
   border-bottom: 1px solid #e5e5e5;
 }
 
@@ -74,27 +75,53 @@ page, .page {
   margin: 4px 0;
 }
 
-/* 文章内容结束 */
-
-/* 点赞开始 */
-
-.like-btn {
-  height: 60rpx;
-  line-height: 60rpx;
-  display: inline-block;
-  text-indent: 20rpx;
-  padding-left: 40rpx;
-  padding-right: 40rpx;
-  margin-top: 60rpx;
+.article-url {
+  margin: 40rpx 10rpx 0 10rpx;
+  background-color: #f2f2f2;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 10rpx;
 }
 
-.like-btn image {
-  width: 40rpx;
-  height: 40rpx;
+/* 文章内容结束 */
+
+/* 点赞收藏按钮开始 */
+
+.action-btn-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 60rpx;
+  margin-top: 60rpx;
+  margin-bottom: 40rpx;
+}
+
+.like-btn, .favorite-btn {
+  height: 70rpx;
+}
+
+.like-btn button, .favorite-btn button {
+  height: 70rpx;
+  line-height: 70rpx;
+  text-indent: 10rpx;
+  padding-left: 36rpx;
+  padding-right: 36rpx;
+}
+
+.favorite-btn button{
+  margin-left: 20rpx;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
+.like-btn image, .favorite-btn image {
+  width: 50rpx;
+  height: 50rpx;
   float: left;
 }
 
-/* 点赞结束 */
+/* 点赞收藏按钮结束 */
 
 /* 评论开始 */
 
@@ -218,9 +245,12 @@ page, .page {
 .comment__form .comment__textarea {
   background-color: #efeff4;
   border-radius: 32rpx;
-  padding: 16rpx;
   font-size: 14px;
   flex: 1;
+}
+
+.android__textarea {
+  padding: 16rpx;
 }
 
 .comment__form__action-box {
@@ -246,7 +276,7 @@ page, .page {
 
 .publish {
   margin-left: 20rpx;
-  color: #179b16;
+  color: #1890ff;
 }
 
 .publish.disable {

@@ -1,0 +1,3 @@
+/* pages/user/favorite.wxss */
+
+@import '/pages/article/index.wxss';

@@ -1,0 +1,25 @@
+/* pages/user/like.wxss */
+
+@import '/pages/article/index.wxss';
+
+.comment-content {
+  font-size: 30rpx;
+}
+
+.dot::before {
+  content: "·";
+}
+
+.comment-mate {
+  margin-top: 10rpx;
+  font-size:13px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  color: #8a8a8a;
+}
+
+.comment-mate view {
+  margin-right: 12rpx;
+}

@@ -141,6 +141,7 @@
     background: #fafafa;
     border: 1px solid #ececec;
     border-radius: 6px;
+    margin-bottom: 8px;
 }
 
 /* 带行号语法高亮样式 */

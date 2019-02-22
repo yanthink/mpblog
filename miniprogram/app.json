@@ -1,11 +1,15 @@
 {
   "pages": [
-    "pages/user/index",
     "pages/article/index",
     "pages/article/details",
     "pages/article/comment-details",
     "pages/article/like-list",
-    
+    "pages/user/index",
+    "pages/user/favorite",
+    "pages/user/comment",
+    "pages/user/reply",
+    "pages/user/like",
+    "pages/user/notification",
     "pages/webview/index"
   ],
   "window": {

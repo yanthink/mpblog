@@ -39,6 +39,7 @@ function checkStatus(res) {
     if (token[2]) {
       setToken(token[0], token[1], Date.now() - 1)
     }
+    login()
   }
 
   const error = new Error(errorText)
@@ -161,6 +162,30 @@ function login() {
   })
 }
 
+function wxSetClipboardData(data, name = '内容') {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await wxApiPromiseWrap(wx.setClipboardData, { data })
+      await wxGetClipboardData()
+      wx.showToast({
+        title: `${name}已复制！`,
+        icon: 'none',
+      })
+      resolve()
+    } catch (e) {
+      wx.showToast({
+        title: `复制失败！`,
+        icon: 'none',
+      })
+      reject()
+    }
+  })
+}
+
+function wxGetClipboardData() {
+  return wxApiPromiseWrap(wx.getClipboardData)
+}
+
 function wxApiPromiseWrap (fn, options = {}) {
   return new Promise((resolve, reject) => {
     fn({
@@ -172,7 +197,6 @@ function wxApiPromiseWrap (fn, options = {}) {
 }
 
 module.exports = {
-  regeneratorRuntime,
   wxRequest,
   wxLogin,
   wxGetUserInfo,
@@ -180,5 +204,7 @@ module.exports = {
   wxAuthorize,
   wxCheckSession,
   login,
+  wxSetClipboardData,
+  wxGetClipboardData,
   wxApiPromiseWrap,
 }

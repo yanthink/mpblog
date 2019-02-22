@@ -1,0 +1,89 @@
+<!--pages/user/favorite.wxml-->
+<wxs src="./../utils.wxs" module="utils" />
+
+<view class="page">
+  <view class="page__bd">
+    <view class="weui-panel weui-panel_access">
+      <view class="scroll-view">
+        
+        <view class="weui-panel__bd">
+          <block wx:for="{{favorites}}" wx:for-index="idx" wx:key="id" wx:for-item="favorite">
+            
+            <block wx:if="{{favorite.target_type === 'App\\Models\\Article'}}">
+          
+            <navigator wx:if="{{favorite.target.thumb_list.length === 0}}" url="/pages/article/details?id={{favorite.target.id}}" class="weui-media-box weui-media-box_text list-item">
+              <view class="weui-media-box__title weui-media-box__title_in-text">{{favorite.target.title}}</view>
+              <view class="weui-media-box__desc">{{favorite.target.description}}</view>
+              <view class="weui-media-box__info">
+                <view class="weui-media-box__info__meta">
+                  {{utils.formatReadCount(favorite.target.current_read_count)}} 阅读
+                </view>
+                <view class="weui-media-box__info__meta">{{ favorite.target.comment_count }} 评论</view>
+                <view class="weui-media-box__info__meta">
+                  {{utils.showTime(favorite.target.created_at, 5)}}
+                </view>
+              </view>
+            </navigator>
+
+            <navigator wx:elif="{{favorite.target.thumb_list.length === 1}}" url="/pages/article/details?id={{favorite.target.id}}" class="weui-media-box weui-media-box_appmsg list-item">
+              <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+                <view class="weui-media-box__left">
+                  <view class="weui-media-box__title">{{favorite.target.title}}</view>
+                  <view class="weui-media-box__info">
+                    <view class="weui-media-box__info__meta">
+                      {{utils.formatReadCount(favorite.target.current_read_count)}} 阅读
+                    </view>
+                    <view class="weui-media-box__info__meta">{{ favorite.target.comment_count }} 评论</view>
+                    <view class="weui-media-box__info__meta">
+                      {{utils.showTime(favorite.target.created_at, 5)}}
+                    </view>
+                  </view>
+                </view>
+              </view>
+              <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+                <image class="weui-media-box__thumb" src="{{favorite.target.thumb_list[0]}}" />
+              </view>
+            </navigator>
+
+            <navigator wx:else url="/pages/article/details?id={{favorite.target.id}}" class="weui-media-box weui-media-box_multiImage list-item">
+              <view class="weui-media-box__bd weui-media-box__bd_in-multiImage">
+                <view class="weui-media-box__title">{{favorite.target.title}}</view>
+              </view>
+              <view class="weui-media-box__thumb-warp">
+                <view wx:for="{{favorite.target.thumb_list}}" wx:key="index" wx:for-item="src" class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+                  <image class="weui-media-box__thumb" src="{{src}}" />
+                </view>
+              </view>
+              <view class="weui-media-box__info">
+                <view class="weui-media-box__info__meta">
+                  {{utils.formatReadCount(favorite.target.current_read_count)}} 阅读
+                </view>
+                <view class="weui-media-box__info__meta">{{ favorite.target.comment_count }} 评论</view>
+                <view class="weui-media-box__info__meta">
+                  {{utils.showTime(favorite.target.created_at, 5)}}
+                </view>
+              </view>
+            </navigator>
+
+            </block>
+
+          </block>
+        </view>
+
+        <view class="page__bd weui-loadmore__box">
+          <view wx:if="{{loading}}" class="weui-loadmore" style="padding-bottom: 1.5em">
+            <view class="weui-loading"></view>
+            <view class="weui-loadmore__tips">正在加载...</view>
+          </view>
+        </view>
+
+        <view wx:if="{{noMoreData}}" class="weui-loadmore__box">
+          <view class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
+          </view>
+        </view>
+
+      </view>
+    </view>
+  </view>
+</view>

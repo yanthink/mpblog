@@ -36,7 +36,7 @@ Page({
       return false;
     }
 
-    this.setData({ page: 0, articles: [], noMoreData: false })
+    this.setData({ page: 0, noMoreData: false })
     this.fetchMore()
   },
 
@@ -64,8 +64,18 @@ Page({
       loading: false,
       noMoreData,
       page,
-      articles: this.data.articles.concat(articles),
+      articles: page === 1 ? articles : this.data.articles.concat(articles),
     })
+
+    wx.stopPullDownRefresh()
+  },
+
+  onPullDownRefresh () {
+    this.refresh()
+  },
+
+  onReachBottom () {
+    this.fetchMore()
   },
 
   async onShow() {

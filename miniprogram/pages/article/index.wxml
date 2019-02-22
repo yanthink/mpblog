@@ -4,7 +4,7 @@
 <view class="page">
   <view class="page__bd">
     <view class="weui-panel weui-panel_access">
-      <scroll-view style="height: 100vh" scroll-y scroll-with-animation enable-back-to-top bindscrolltolower="fetchMore">
+      <view class="scroll-view">
         <!--搜索框开始-->
         <view class="weui-search-bar">
           <view class="weui-search-bar__form">
@@ -23,10 +23,13 @@
           <view class="weui-search-bar__cancel-btn" hidden="{{!inputShowed}}" bindtap="hideInput">取消</view>
         </view>
         <!--搜索框结束-->
+        
         <view wx:if="{{inputVal.length > 0}}" class="weui-panel__hd">关于 “{{inputVal}}” 的搜索结果</view>
+        
         <view class="weui-panel__bd">
           <block wx:for="{{articles}}" wx:for-index="idx" wx:key="id" wx:for-item="article">
-            <navigator wx:if="{{article.thumb_list.length === 0}}" url="details?id={{article.id}}" class="weui-media-box weui-media-box_text">
+            
+            <navigator wx:if="{{article.thumb_list.length === 0}}" url="details?id={{article.id}}" class="weui-media-box weui-media-box_text list-item">
               <view class="weui-media-box__title weui-media-box__title_in-text">{{article.title}}</view>
               <view class="weui-media-box__desc">{{article.description}}</view>
               <view class="weui-media-box__info">
@@ -35,11 +38,12 @@
                 </view>
                 <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                 <view class="weui-media-box__info__meta">
-                  {{utils.showTime(article.created_at)}}
+                  {{utils.showTime(article.created_at, 5)}}
                 </view>
               </view>
             </navigator>
-            <navigator wx:elif="{{article.thumb_list.length === 1}}" url="details?id={{article.id}}" class="weui-media-box weui-media-box_appmsg">
+
+            <navigator wx:elif="{{article.thumb_list.length === 1}}" url="details?id={{article.id}}" class="weui-media-box weui-media-box_appmsg list-item">
               <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
                 <view class="weui-media-box__left">
                   <view class="weui-media-box__title">{{article.title}}</view>
@@ -49,7 +53,7 @@
                     </view>
                     <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                     <view class="weui-media-box__info__meta">
-                      {{utils.showTime(article.created_at)}}
+                      {{utils.showTime(article.created_at, 5)}}
                     </view>
                   </view>
                 </view>
@@ -58,7 +62,8 @@
                 <image class="weui-media-box__thumb" src="{{article.thumb_list[0]}}" />
               </view>
             </navigator>
-            <navigator wx:else url="details?id={{article.id}}" class="weui-media-box weui-media-box_multiImage">
+
+            <navigator wx:else url="details?id={{article.id}}" class="weui-media-box weui-media-box_multiImage list-item">
               <view class="weui-media-box__bd weui-media-box__bd_in-multiImage">
                 <view class="weui-media-box__title">{{article.title}}</view>
               </view>
@@ -73,10 +78,11 @@
                 </view>
                 <view class="weui-media-box__info__meta">{{ article.comment_count }} 评论</view>
                 <view class="weui-media-box__info__meta">
-                  {{utils.computeDiffTime(article.created_at)}}
+                  {{utils.showTime(article.created_at, 5)}}
                 </view>
               </view>
             </navigator>
+
           </block>
         </view>
 
@@ -92,7 +98,7 @@
             <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
           </view>
         </view>
-      </scroll-view>
+      </view>
     </view>
   </view>
 </view>

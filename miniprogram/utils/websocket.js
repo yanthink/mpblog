@@ -80,6 +80,11 @@ const heartbeat = {
   },
 }
 
+const unreadCountChangeListens = [] // 未读消息change监听列表
+function registerUnreadCountChangeListen(fn) {
+  unreadCountChangeListens.push(fn)
+}
+
 let unreadCount = 0 // 未读消息条数
 function setTabBarBadgeByUnreadCount(count) {
   if (count && count != unreadCount) {
@@ -93,6 +98,10 @@ function setTabBarBadgeByUnreadCount(count) {
   } else {
     wx.removeTabBarBadge({ index: 1 })
   }
+
+  unreadCountChangeListens.forEach(fn => {
+    fn(unreadCount)
+  })
 }
 
 function addUnreadCount() {
@@ -103,6 +112,10 @@ function addUnreadCount() {
 function subUnreadCount() {
   unreadCount--
   setTabBarBadgeByUnreadCount()
+}
+
+function getUnreadCount() {
+  return unreadCount
 }
 
 function wxApiPromiseWrap(fn, options = {}) {
@@ -116,9 +129,11 @@ function wxApiPromiseWrap(fn, options = {}) {
 }
 
 module.exports = {
-  createWebSocket: createWebSocket,
-  getSocketTask: getSocketTask,
+  createWebSocket,
+  getSocketTask,
+  registerUnreadCountChangeListen,
   setTabBarBadgeByUnreadCount,
   addUnreadCount,
   subUnreadCount,
+  getUnreadCount,
 }

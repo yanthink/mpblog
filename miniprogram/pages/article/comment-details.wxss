@@ -35,6 +35,10 @@ page, .page {
 }
 
 /* 评论详情开始 */
+.comment-box {
+  border-bottom: 1rpx solid #d7d6dc;
+}
+
 .comment-item {
   padding: 16rpx;
   margin-right: 8rpx;
@@ -120,11 +124,45 @@ page, .page {
 .comment__content-parent navigator {
   color: #1890ff;
 }
+
+.comment__target navigator{
+  background-color: #f2f2f2;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment__target-title {
+  font-size: 28rpx;
+  flex: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.4;
+}
+
+.comment__target-thumb {
+  padding: 12rpx;
+}
+
+.comment__target-thumb, .comment__target-thumb image {
+  width: 110rpx;
+  height: 80rpx;
+}
+
+.comment__target-thumb-default, .comment__target-thumb-default image {
+  width: 100rpx;
+  height: 100rpx;
+}
 /* 评论详情结束 */
 
 /* 回复详情开始 */
-.reply-box {
-  border-top: 1rpx solid #d7d6dc;
+.with-reply-box {
+  background-color: #fffbe6;
 }
 
 .reply-title {
@@ -145,9 +183,12 @@ page, .page {
 .comment__form .comment__textarea {
   background-color: #efeff4;
   border-radius: 32rpx;
-  padding: 16rpx;
   font-size: 14px;
   flex: 1;
+}
+
+.android__textarea {
+  padding: 16rpx;
 }
 
 .comment__form__action-box {
@@ -173,7 +214,7 @@ page, .page {
 
 .publish {
   margin-left: 20rpx;
-  color: #179B16;
+  color: #1890ff;
 }
 
 .publish.disable {

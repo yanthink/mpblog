@@ -1,5 +1,17 @@
 /* pages/user/index.wxss */
 
+.getUserInfo-btn {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  opacity: 0;
+}
+
+.getUserInfo-btn.button-hover {
+  background-color: transparent;
+}
+
 .userinfo {
   background: #fff;
   position: relative;
@@ -30,4 +42,14 @@
   vertical-align: middle;
   width: 20px;
   height: 20px;
+}
+
+.notification-box {
+  position: relative;
+}
+
+.notification-box .weui-badge {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
 }

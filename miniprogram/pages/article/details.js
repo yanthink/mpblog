@@ -1,6 +1,6 @@
 import { stringify } from 'qs'
 import regeneratorRuntime from '../../utils/runtime'
-const { wxRequest, login } = require('../../utils/helpers')
+const { wxRequest, login, wxSetClipboardData } = require('../../utils/helpers')
 const { setToken, checkLogin } = require('../../utils/authority')
 
 const app = getApp()
@@ -11,6 +11,7 @@ Page({
   data: {
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     authSetting: {},
+    systemInfo: {},
     id: null,
     commentContent: '',
     anchorPoint: '',
@@ -37,7 +38,7 @@ Page({
     committing: false,
   },
 
-  onGetUserInfo: function (e) {
+  onGetUserInfo (e) {
     if (e.detail.userInfo) { // 用户按了允许授权按钮
       app.globalData.authSetting['scope.userInfo'] = true
       this.setData({ authSetting: app.globalData.authSetting })
@@ -58,6 +59,27 @@ Page({
     this.setData({ commentContent: e.detail.value })
   },
 
+  async tapFavorite() {
+    if (this.data.committing) {
+      return false
+    }
+
+    await login()
+
+    try {
+      this.setData({ committing: true })
+
+      const { id, article } = this.data
+      const { data } = await wxRequest(`/api/wechat/article/${id}/favorite`, {
+        method: 'POST',
+      })
+
+      this.setData({ article: { ...article, ...data }, committing: false })
+    } catch (e) {
+      this.setData({ committing: false })
+    }
+  },
+
   async tapLikeByArticle () {
     if (this.data.committing) {
       return false
@@ -68,12 +90,12 @@ Page({
     try {
       this.setData({ committing: true })
 
-      const { id } = this.data
-      const { data: article } = await wxRequest(`/api/wechat/article/${id}/like`, {
+      const { id, article } = this.data
+      const { data } = await wxRequest(`/api/wechat/article/${id}/like`, {
         method: 'POST',
       })
 
-      this.setData({ article, committing: false })
+      this.setData({ article: { ...article, ...data }, committing: false })
     } catch (e) {
       this.setData({ committing: false })
     }
@@ -176,10 +198,13 @@ Page({
     })
   },
 
-  wxmlTagATap (e) {
-    wx.navigateTo({
-      url: `/pages/webview/index?src=${e.detail.src}`,
-    })
+  onWxmlTagATap (e) {
+    wxSetClipboardData(e.detail.src, '链接地址')
+  },
+
+  onArticleLinkTap (e) {
+    const { url } = e.currentTarget.dataset
+    wxSetClipboardData(url, '文章链接')
   },
 
   scrollToComment () {
@@ -192,13 +217,19 @@ Page({
     }
   },
 
-  async onLoad({ id }) {
+  async onLoad({ id, commentId }) {
     await app.globalData.getAuthSettingPromise
     
     const { authSetting } = app.globalData 
-    this.setData({ id, authSetting })
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({ id, authSetting, systemInfo })
 
-    const articlePromise = wxRequest(`/api/wechat/article/${id}`)
+    const params = {}
+    if (commentId > 0) {
+      params.comment_id = commentId
+    }
+
+    const articlePromise = wxRequest(`/api/wechat/article/${id}?${stringify(params)}`)
     const commentPromise = this.fetchComment()
 
     const { data: article } = await articlePromise

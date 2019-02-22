@@ -10,6 +10,7 @@ Page({
   data: {
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     authSetting: {},
+    systemInfo: {},
     replyId: null,
     id: null,
     anchorPoint: '',
@@ -78,12 +79,14 @@ Page({
       this.setData({ committing: true })
 
       const { commentId } = e.currentTarget.dataset
-      const { data: comment } = await wxRequest(`/api/wechat/comment/${commentId}/like`, {
+      const { data } = await wxRequest(`/api/wechat/comment/${commentId}/like`, {
         method: 'POST',
         data: { include: 'user' },
       })
 
-      this.setData({ comment, committing: false })
+      const { comment } = this.data
+
+      this.setData({ comment: { ...comment, ...data }, committing: false })
     } catch (e) {
       this.setData({ committing: false })
     }
@@ -190,13 +193,23 @@ Page({
     })
   },
 
-  async onLoad({ id }) {
+  async onLoad({ id, withTarget, replyId }) {
     await app.globalData.getAuthSettingPromise
 
     const { authSetting } = app.globalData
-    this.setData({ id, authSetting })
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({ id, authSetting, systemInfo })
 
-    const commentParams = { include: 'user' }
+    const includes = ['user']
+    if (withTarget) {
+      includes.push('target')
+    }
+
+    const commentParams = { include: includes.join(',') }
+
+    if (replyId > 0) {
+      commentParams.reply_id = replyId
+    }
 
     const commentPromise = wxRequest(`/api/wechat/comment/${id}?${stringify(commentParams)}`)
     const replyPromise = this.fetchReply()

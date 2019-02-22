@@ -37,7 +37,14 @@ function showTime(time, level = 1) {
   return time;
 }
 
+function includes(needle, arr) {
+  if (typeof arr !== 'object' || !arr.indexOf) return false
+
+  return arr.indexOf(needle) > -1
+}
+
 module.exports = {
   formatReadCount: formatReadCount,
   showTime: showTime,
+  includes: includes,
 };

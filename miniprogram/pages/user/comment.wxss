@@ -1,0 +1,62 @@
+/* pages/user/comment.wxss */
+
+.list-item {
+  background-color: #fff;
+  margin-bottom: 12rpx;
+  padding: 20rpx 26rpx;
+}
+
+.comment-content {
+  font-size: 30rpx;
+}
+
+.target-box {
+  border: 1rpx solid #d9d9d9;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12rpx 0;
+}
+
+.target-title {
+  padding: 12rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  flex: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-height: 1.4;
+}
+
+.target-thumb, .target-thumb image {
+  width: 190rpx;
+  height: 140rpx;
+}
+
+.target-thumb-default, .target-thumb-default image {
+  width: 140rpx;
+  height: 140rpx;
+}
+
+.dot::before {
+  content: "·";
+}
+
+.comment-mate {
+  margin-top: 10rpx;
+  font-size:13px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  color: #8a8a8a;
+}
+
+.comment-mate view {
+  margin-right: 12rpx;
+}
