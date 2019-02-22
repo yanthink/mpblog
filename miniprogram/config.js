@@ -6,7 +6,7 @@ const config = {
     socketUrl: 'wss://api.blog.test/wss',
     socketHeartTimeout: 5000, // 50s
   },
-  production: {
+  production: { // todo git 忽略
     baseUrl: 'https://www.einsition.com',
     socketUrl: 'wss://www.einsition.com/wss',
     socketHeartTimeout: 540000, // 9分钟

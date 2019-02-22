@@ -1,9 +1,10 @@
 import regeneratorRuntime from '../../utils/runtime'
-const { login } = require('../../utils/helpers')
+const { login, wxRequest } = require('../../utils/helpers')
 const {
   registerUnreadCountChangeListen,
   setTabBarBadgeByUnreadCount,
   getUnreadCount,
+  createWebSocket,
 } = require('../../utils/websocket')
 
 const app = getApp()
@@ -21,6 +22,18 @@ Page({
       app.globalData.authSetting['scope.userInfo'] = true
       this.setData({ authSetting: app.globalData.authSetting })
     }
+  },
+
+  async onPullDownRefresh() {
+    // todo 获取通知
+    await login() // 如果登录过期则重新登录
+
+    const { data } = await wxRequest(`/api/wechat/user/notification/unread_count`);
+    setTabBarBadgeByUnreadCount(data)
+
+    createWebSocket() // 如果socket断线的话则重新连接socket
+
+    wx.stopPullDownRefresh()
   },
 
   async onShow () {

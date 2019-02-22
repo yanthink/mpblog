@@ -210,7 +210,7 @@ Page({
   scrollToComment () {
     const { anchorPoint } = this.data
 
-    if (anchorPoint === 'comment-box') {
+    if (anchorPoint !== '' && anchorPoint !== 'article-box') {
       this.setData({ anchorPoint: 'article-box' })
     } else {
       this.setData({ anchorPoint: 'comment-box' })
@@ -233,6 +233,7 @@ Page({
     const commentPromise = this.fetchComment()
 
     const { data: article } = await articlePromise
-    this.setData({ article })
+    const anchorPoint = article.comments && article.comments.length > 0 ? 'with-comment-box' : ''
+    this.setData({ article, anchorPoint })
   },
 })

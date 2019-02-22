@@ -12,7 +12,7 @@ function formatReadCount(number) {
 }
 
 function showTime(time, level = 1) {
-  var t = time.split(' ').join('T');
+  var t = time.split(' ').join('T') + '+08:00';
   var diffSeconds = (getDate().valueOf() - Date.parse(t)) / 1000;
 
   var u = ['年', '个月', '星期', '天', '小时', '分钟', '秒'];

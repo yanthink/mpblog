@@ -229,6 +229,10 @@ page, .page {
   border-radius: 30rpx;
 }
 
+.with-comment-box {
+  background-color: #fffbe6;
+}
+
 /* 评论结束 */
 
 /* 评论表单开始 */

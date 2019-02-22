@@ -12,29 +12,34 @@ function createWebSocket () {
     }
     lockConnect = true
 
-    socketTask = await wxConnectSocket(config.socketUrl, {
-      header: {
-        Authorization: getAuthorization(),
-      },
-    })
+    try {
+      socketTask = await wxConnectSocket(config.socketUrl, {
+        header: {
+          Authorization: getAuthorization(),
+        },
+      })
 
-    heartbeat.reset().start() // 心跳检测重置
+      heartbeat.reset().start() // 心跳检测重置
 
-    socketTask.onMessage(({ data: msg }) => { // 通知消息
-      heartbeat.reset().start() // 拿到任何消息都说明当前连接是正常的
-      const { event, data } = JSON.parse(msg)
-      switch (event) {
-        case 'Illuminate\\Notifications\\Events\\BroadcastNotificationCreated':
-          addUnreadCount()
-          break
-      }
-    })
+      socketTask.onMessage(({ data: msg }) => { // 通知消息
+        heartbeat.reset().start() // 拿到任何消息都说明当前连接是正常的
+        const { event, data } = JSON.parse(msg)
+        switch (event) {
+          case 'Illuminate\\Notifications\\Events\\BroadcastNotificationCreated':
+            addUnreadCount()
+            break
+        }
+      })
 
-    socketTask.onClose((data) => {
+      socketTask.onClose((data) => {
+        heartbeat.reset()
+        lockConnect = false
+        socketTask = null
+        // createWebSocket()
+      })
+    } catch (e) {
       lockConnect = false
-      socketTask = null
-      // createWebSocket()
-    })
+    }
   })()
 }
 
