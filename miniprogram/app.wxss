@@ -44,3 +44,7 @@ page{
 .wxml-blockquote .wxml-p {
   margin-bottom: 0;
 }
+
+.wxml-hr {
+  margin: 32rpx 0 !important;
+}
