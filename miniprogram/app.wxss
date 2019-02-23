@@ -35,3 +35,12 @@ page{
     text-align: left;
     font-size: 14px;
 }
+
+/* htmltowxml */
+.wxml-blockquote, .wxml-pre {
+  margin-bottom: 16rpx !important;
+}
+
+.wxml-blockquote .wxml-p {
+  margin-bottom: 0;
+}
