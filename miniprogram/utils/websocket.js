@@ -3,43 +3,42 @@ const { getAuthorization } = require('./authority')
 const config = require('../config')
 
 let socketTask = null
-let lockConnect = false // 避免ws重复连接
 
 function createWebSocket () {
   (async () => {
-    if (lockConnect) {
+    /*
+    * readyState:
+    * 0: 正在建立连接连接。
+    * 1: 连接成功建立，可以进行通信。
+    * 2: 连接正在进行关闭握手，即将关闭。
+    * 3: 连接已经关闭或者根本没有建立。
+    */
+    if (socketTask && socketTask.readyState !== 3) {
       return false
     }
-    lockConnect = true
 
-    try {
-      socketTask = await wxConnectSocket(config.socketUrl, {
-        header: {
-          Authorization: getAuthorization(),
-        },
-      })
+    socketTask = await wxConnectSocket(config.socketUrl, {
+      header: {
+        Authorization: getAuthorization(),
+      },
+    })
 
-      heartbeat.reset().start() // 心跳检测重置
+    heartbeat.reset().start() // 心跳检测重置
 
-      socketTask.onMessage(({ data: msg }) => { // 通知消息
-        heartbeat.reset().start() // 拿到任何消息都说明当前连接是正常的
-        const { event, data } = JSON.parse(msg)
-        switch (event) {
-          case 'Illuminate\\Notifications\\Events\\BroadcastNotificationCreated':
-            addUnreadCount()
-            break
-        }
-      })
+    socketTask.onMessage(({ data: msg }) => { // 通知消息
+      heartbeat.reset().start() // 拿到任何消息都说明当前连接是正常的
+      const { event, data } = JSON.parse(msg)
+      switch (event) {
+        case 'Illuminate\\Notifications\\Events\\BroadcastNotificationCreated':
+          addUnreadCount()
+          break
+      }
+    })
 
-      socketTask.onClose((data) => {
-        heartbeat.reset()
-        lockConnect = false
-        socketTask = null
-        // createWebSocket()
-      })
-    } catch (e) {
-      lockConnect = false
-    }
+    socketTask.onClose((data) => {
+      heartbeat.reset()
+      // createWebSocket()
+    })
   })()
 }
 
