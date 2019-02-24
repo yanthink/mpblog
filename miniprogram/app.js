@@ -1,5 +1,5 @@
 import regeneratorRuntime from './utils/runtime'
-const { login, wxGetSetting } = require('./utils/helpers.js')
+const { login, wxGetSetting, checkVersionUpdate } = require('./utils/helpers.js')
 const { getAuthorization } = require('./utils/authority')
 
 //app.js
@@ -15,6 +15,8 @@ App({
         traceUser: true,
       })
     }
+
+    checkVersionUpdate()
 
     this.globalData.getAuthSettingPromise = this.getAuthSetting()
     login()
