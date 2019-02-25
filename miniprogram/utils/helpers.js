@@ -65,21 +65,20 @@ function wxRequest (url, options = {}) {
       ...options,
       url: config.baseUrl + url,
       success (res) {
-        checkStatus(res)
-        res.data = res.data.data;
-        resolve(res)
+        try {
+          checkStatus(res)
+          res.data = res.data.data;
+          resolve(res)
+        } catch (e) {
+          reject(e)
+        }
       },
       fail (res) {
         reject(res)
       },
     }
 
-    try {
-      wx.request(newOptions)
-    } catch (e) {
-      reject(e)
-    }
-    
+    wx.request(newOptions)
   })
 }
 
