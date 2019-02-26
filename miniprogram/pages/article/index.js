@@ -52,20 +52,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { keyword, page, pageSize }
+    try {
+      const params = { keyword, page, pageSize }
 
-    const { data: articles } = await wxRequest(`/api/wechat/article?${stringify(params)}`)
+      const { data: articles } = await wxRequest(`/api/wechat/article?${stringify(params)}`)
 
-    if (articles.length != pageSize) {
-      noMoreData = true
+      if (articles.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        articles: page === 1 ? articles : this.data.articles.concat(articles),
+      })
+    } catch (e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      articles: page === 1 ? articles : this.data.articles.concat(articles),
-    })
 
     wx.stopPullDownRefresh()
   },

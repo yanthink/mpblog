@@ -33,20 +33,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { include: 'target', page, pageSize }
+    try {
+      const params = { include: 'target', page, pageSize }
 
-    const { data: comments } = await wxRequest(`/api/wechat/user/comment?${stringify(params)}`)
+      const { data: comments } = await wxRequest(`/api/wechat/user/comment?${stringify(params)}`)
 
-    if (comments.length != pageSize) {
-      noMoreData = true
+      if (comments.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        comments: page === 1 ? comments : this.data.comments.concat(comments),
+      })
+    } catch(e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      comments: page === 1 ? comments : this.data.comments.concat(comments),
-    })
 
     wx.stopPullDownRefresh()
   },

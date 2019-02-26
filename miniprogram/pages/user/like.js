@@ -46,20 +46,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { include: 'target', page, pageSize }
+    try {
+      const params = { include: 'target', page, pageSize }
 
-    const { data: likes } = await wxRequest(`/api/wechat/user/like?${stringify(params)}`)
+      const { data: likes } = await wxRequest(`/api/wechat/user/like?${stringify(params)}`)
 
-    if (likes.length != pageSize) {
-      noMoreData = true
+      if (likes.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        likes: page === 1 ? likes : this.data.likes.concat(likes),
+      })
+    } catch(e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      likes: page === 1 ? likes : this.data.likes.concat(likes),
-    })
 
     wx.stopPullDownRefresh()
   },

@@ -33,20 +33,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { include: 'target.user,parent.user,target.target', page, pageSize }
+    try {
+      const params = { include: 'target.user,parent.user,target.target', page, pageSize }
 
-    const { data: replys } = await wxRequest(`/api/wechat/user/reply?${stringify(params)}`)
+      const { data: replys } = await wxRequest(`/api/wechat/user/reply?${stringify(params)}`)
 
-    if (replys.length != pageSize) {
-      noMoreData = true
+      if (replys.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        replys: page === 1 ? replys : this.data.replys.concat(replys),
+      })
+    } catch(e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      replys: page === 1 ? replys : this.data.replys.concat(replys),
-    })
 
     wx.stopPullDownRefresh()
   },

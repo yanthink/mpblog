@@ -101,21 +101,25 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { page, pageSize }
+    try {
+      const params = { page, pageSize }
 
-    const { data: notifications } = await wxRequest(`/api/wechat/user/notification?${stringify(params)}`)
+      const { data: notifications } = await wxRequest(`/api/wechat/user/notification?${stringify(params)}`)
 
-    if (notifications.length != pageSize) {
-      noMoreData = true
+      if (notifications.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        notifications: page === 1 ? notifications : this.data.notifications.concat(notifications),
+      })
+    } catch(e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      notifications: page === 1 ? notifications : this.data.notifications.concat(notifications),
-    })
-
+    
     wx.stopPullDownRefresh()
   },
 

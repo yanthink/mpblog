@@ -33,20 +33,24 @@ Page({
 
     this.setData({ loading: true })
 
-    const params = { include: 'target', page, pageSize }
+    try {
+      const params = { include: 'target', page, pageSize }
 
-    const { data: favorites } = await wxRequest(`/api/wechat/user/favorite?${stringify(params)}`)
+      const { data: favorites } = await wxRequest(`/api/wechat/user/favorite?${stringify(params)}`)
 
-    if (favorites.length != pageSize) {
-      noMoreData = true
+      if (favorites.length != pageSize) {
+        noMoreData = true
+      }
+
+      this.setData({
+        loading: false,
+        noMoreData,
+        page,
+        favorites: page === 1 ? favorites : this.data.favorites.concat(favorites),
+      })
+    } catch(e) {
+      this.setData({ loading: false })
     }
-
-    this.setData({
-      loading: false,
-      noMoreData,
-      page,
-      favorites: page === 1 ? favorites : this.data.favorites.concat(favorites),
-    })
 
     wx.stopPullDownRefresh()
   },

@@ -25,12 +25,16 @@ Page({
   },
 
   async onPullDownRefresh() {
-    await login() // 如果登录过期则重新登录
-    createWebSocket() // 如果socket断线的话则重新连接socket
+    try {
+      await login() // 如果登录过期则重新登录
+      createWebSocket() // 如果socket断线的话则重新连接socket
 
-    // 获取未读通知条数
-    const { data } = await wxRequest(`/api/wechat/user/notification/unread_count`);
-    setTabBarBadgeByUnreadCount(data)
+      // 获取未读通知条数
+      const { data } = await wxRequest(`/api/wechat/user/notification/unread_count`);
+      setTabBarBadgeByUnreadCount(data)
+    } catch(e) {
+      //
+    }
 
     wx.stopPullDownRefresh()
   },
