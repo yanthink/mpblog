@@ -13,6 +13,8 @@
 	"appid": "wx2b051c6c4c45e924",
 	"projectname": "mpblog",
 	"libVersion": "2.6.0",
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {
 		"search": {
 			"current": -1,

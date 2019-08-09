@@ -7,9 +7,7 @@ const config = {
     socketHeartTimeout: 50000, // 50s
   },
   production: { // todo git 忽略
-    baseUrl: 'https://www.einsition.com',
-    socketUrl: 'wss://www.einsition.com/wss',
-    socketHeartTimeout: 240000, // 4分钟
+
   },
 }
 

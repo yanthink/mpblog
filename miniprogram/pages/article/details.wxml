@@ -25,7 +25,7 @@
           <view class="weui-article__section article__content-box">
             <htmltowxml json="{{article.htmltowxml_json}}" highlightStyle="darcula" bindWxmlTagATap="onWxmlTagATap" />
 
-            <view class="article-url" data-url="https://www.einsition.com/article/{{article.id}}/details" bindtap="onArticleLinkTap">文章链接：https://www.einsition.com/article/{{article.id}}/details</view>
+            <view class="article-url" data-url="https://www.einsition.com/articles/{{article.id}}/show" bindtap="onArticleLinkTap">文章链接：https://www.einsition.com/articles/{{article.id}}/show</view>
 
             <view class="action-btn-box">
               <view class="like-btn">

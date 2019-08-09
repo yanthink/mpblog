@@ -118,7 +118,7 @@ function checkAuthorize () {
   })
 }
 
-function login() {
+function login(params = {}) {
   return new Promise(async (resolve, reject) => {
     const loginStatus = checkLogin()
 
@@ -133,6 +133,7 @@ function login() {
       const { data } = await wxRequest('/api/wechat/auth/login', {
         method: 'POST',
         data: {
+          ...params,
           ...res,
           code,
         }

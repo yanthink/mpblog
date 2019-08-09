@@ -1,0 +1,25 @@
+<view class="page">
+    <view class="page__hd">
+      <view style='text-align: center'>
+        <image src="/images/icon/pc.png" style="width: 200px; height: 200px" />
+        <view style='text-align: center'>
+          <text style='font-size: 32rpx'>WEB 端登录确认</text>
+        </view>
+      </view>
+
+      <view style='text-align: center'>
+        <button
+          style='width: 400rpx'
+          class="weui-btn"
+          type="primary"
+          open-type="getUserInfo"
+          bindgetuserinfo="onGetUserInfo"
+        >
+          登录
+        </button>
+        <view style='font-size: 32rpx; margin-top: 40rpx; color: rgba(0, 0, 0, 0.5)'>
+          <navigator open-type="exit" target="miniProgram">取消登录</navigator>
+        </view>
+      </view>
+    </view>
+</view>

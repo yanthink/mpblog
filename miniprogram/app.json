@@ -10,6 +10,7 @@
     "pages/user/reply",
     "pages/user/like",
     "pages/user/notification",
+    "pages/auth/scan-login",
     "pages/webview/index"
   ],
   "window": {
@@ -46,5 +47,6 @@
       }
     ]
   },
-  "debug": true
+  "debug": true,
+  "sitemapLocation": "sitemap.json"
 }
