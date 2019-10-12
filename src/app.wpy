@@ -1,0 +1,92 @@
+<style lang="less">
+  @import (css) './static/style/weui.wxss';
+
+  page {
+    background-color: #F8F8F8;
+  }
+
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+</style>
+
+<script>
+  import wepy from '@wepy/core';
+  import vuex from '@wepy/x';
+  import moment from 'moment';
+  import 'moment/locale/zh-cn';
+  import eventHub from '@/common/eventHub';
+
+  moment.locale('zh-cn');
+
+  wepy.use(vuex);
+
+  wepy.app({
+    store: require('./vuex').default,
+
+    onError (error) {
+      console.info(error);
+    },
+
+    hooks: {
+      // App 级别 hook，对整个 App 生效
+      // 同时存在 Page hook 和 App hook 时，优先执行 Page hook，返回值再交由 App hook 处
+      'before-setData': function (dirty) {
+        console.log('setData dirty: ', dirty);
+        return dirty;
+      },
+    },
+
+
+    onLaunch () {
+      this.$options.store.dispatch('auth/checkUserToken');
+
+      eventHub.$on('app-launch', (...args) => {
+        console.log('app-launch event emitted, the params are:');
+        console.log(args);
+      });
+    },
+  });
+</script>
+
+<config>
+  {
+    pages: [
+      'pages/account/center/index',
+      'pages/articles/list/index',
+    ],
+    window: {
+      backgroundColor: '#F8F8F8',
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#F8F8F8',
+      navigationBarTitleText: '平凡的博客',
+      navigationBarTextStyle: 'black',
+    },
+    tabBar: {
+      color: '#595959',
+      selectedColor: '#13C2C2',
+      backgroundColor: '#ffffff',
+      borderStyle: 'black',
+      position: 'bottom',
+      list: [
+        {
+          pagePath: 'pages/articles/list/index',
+          text: '博文',
+          iconPath: './static/png/read_81x81.png',
+          selectedIconPath: './static/png/read_selected_81x81.png',
+        },
+        {
+          pagePath: 'pages/account/center/index',
+          text: '我的',
+          iconPath: './static/png/user_81x81.png',
+          selectedIconPath: './static/png/user_selected_81x81.png',
+        },
+      ],
+    },
+  }
+</config>

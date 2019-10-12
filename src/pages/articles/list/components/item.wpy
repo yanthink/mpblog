@@ -1,0 +1,56 @@
+<style lang="less">
+  @import (css) "../../../../static/style/widget/weui-media-box/weui-media-box.wxss";
+
+  .weui-media-box:before {
+    left: 16px;
+  }
+
+  .weui-media-box:first-child:before {
+    left: 16px;
+    display: block;
+  }
+</style>
+
+<template>
+  <div class="weui-media-box weui-media-box_text">
+    <div class="weui-media-box__title weui-media-box__title_in-text">{{article.title}}</div>
+    <div class="weui-media-box__desc">{{desc}}</div>
+    <div class="weui-media-box__info">
+      <div class="weui-media-box__info__meta">{{article.cache.views_count}} 阅读</div>
+      <div class="weui-media-box__info__meta">{{ article.cache.comments_count }} 评论</div>
+      <div class="weui-media-box__info__meta">{{timeago}}</div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import { diffForHumans } from '@/utils/utils';
+
+  wepy.component({
+    props: {
+      article: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    computed: {
+      timeago () {
+        if (this.article && this.article.created_at) {
+          return diffForHumans(this.article.created_at);
+        }
+
+        return '';
+      },
+
+      desc () {
+        if (this.article && this.article.content) {
+          return this.article.content.markdown.substr(0, 80);
+        }
+
+        return '';
+      },
+    },
+  });
+</script>

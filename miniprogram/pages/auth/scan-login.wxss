@@ -1,9 +1,0 @@
-/* pages/auth/scan-login.wxss */
-
-.page__hd {
-  box-sizing: border-box;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}

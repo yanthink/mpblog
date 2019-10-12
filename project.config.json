@@ -1,53 +1,16 @@
 {
-	"miniprogramRoot": "miniprogram/",
-	"cloudfunctionRoot": "cloudfunctions/",
+	"description": "平凡的博客",
 	"setting": {
-		"urlCheck": false,
-		"es6": true,
-		"postcss": true,
-		"minified": true,
-		"newFeature": true,
-		"nodeModules": true,
-		"autoAudits": false
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false
 	},
+	"compileType": "miniprogram",
 	"appid": "wx2b051c6c4c45e924",
-	"projectname": "mpblog",
-	"libVersion": "2.6.0",
+	"projectname": "blog",
+	"miniprogramRoot": "weapp/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
-	"condition": {
-		"search": {
-			"current": -1,
-			"list": []
-		},
-		"conversation": {
-			"current": -1,
-			"list": []
-		},
-		"plugin": {
-			"current": -1,
-			"list": []
-		},
-		"game": {
-			"list": []
-		},
-		"miniprogram": {
-			"current": 1,
-			"list": [
-				{
-					"id": -1,
-					"name": "db guide",
-					"pathName": "pages/databaseGuide/databaseGuide",
-					"query": ""
-				},
-				{
-					"id": -1,
-					"name": "模拟更新",
-					"pathName": "pages/article/index",
-					"query": "",
-					"scene": null
-				}
-			]
-		}
-	}
+	"condition": {}
 }

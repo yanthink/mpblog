@@ -1,0 +1,208 @@
+<style lang="less">
+  .weui-panel {
+    margin-top: 0;
+    background-color: transparent;
+  }
+
+  .scroll-view {
+    min-height: 100vh;
+  }
+
+  .weui-search-bar__cancel-btn {
+    color: #13C2C2;
+  }
+
+  .weui-panel__bd {
+    background: white;
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+  }
+
+  .weui-panel__hd {
+    padding: 12px 16px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, .6);
+
+    &:after {
+      left: 0;
+    }
+  }
+
+  .weui-loading__wrp {
+    padding: 16px;
+    text-align: center;
+  }
+</style>
+
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <div class="weui-panel weui-panel_access">
+        <div class="scroll-view">
+          <!--搜索框开始-->
+          <div class="weui-search-bar">
+            <div class="weui-search-bar__form">
+              <div class="weui-search-bar__box">
+                <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
+                <input
+                  type="text"
+                  class="weui-search-bar__input"
+                  placeholder="搜索"
+                  value="{{searchValue}}"
+                  :focus="searchShowed"
+                  bindconfirm="onSearch"
+                />
+                <div class="weui-icon-clear" v-show="searchValue.length > 0" @tap="clearSearch">
+                  <icon type="clear" size="14"></icon>
+                </div>
+              </div>
+
+              <label class="weui-search-bar__label" v-show="!searchShowed" @tap="showSearch">
+                <icon class="weui-icon-search" type="search" size="14"></icon>
+                <view class="weui-search-bar__text">搜索</view>
+              </label>
+            </div>
+            <div class="weui-search-bar__cancel-btn" v-show="searchShowed" @tap="hideSearch">取消</div>
+          </div>
+          <!--搜索框结束-->
+
+          <!--列表开始-->
+          <div v-if="searchValue.length > 0" class="weui-panel__hd">关于 “{{searchValue}}” 的搜索结果</div>
+          <div class="weui-panel__bd">
+            <a href="" v-for="article in articles" hover-class="weui-cell_active">
+              <item v-if="article.images.length === 0" :article="article"></item>
+              <item1 v-else-if="article.images.length === 1" :article="article"></item1>
+              <item2 v-else :article="article"></item2>
+            </a>
+          </div>
+          <!--列表结束-->
+
+          <view v-show="loading" class="weui-loading__wrp">
+            <view class="loading wx_dot_loading"></view>
+          </view>
+
+          <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
+          </view>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import { mapState } from '@wepy/x';
+  import unionBy from 'lodash/unionBy';
+  import Debounce from 'lodash-decorators/debounce';
+  import store from './vuex';
+  import { matchImages } from './utils';
+
+  wepy.page({
+    store,
+
+    data: {
+      searchShowed: false,
+      searchValue: '',
+    },
+
+    computed: {
+      ...mapState('articleList', [
+        'loading',
+        'list',
+        'pagination',
+      ]),
+
+      // todo vuex getters 会报错，只能等官方修复了
+      articles () {
+        return unionBy(this.list, 'id').map(article => {
+          const images = matchImages(article.content.markdown);
+
+          if (images.length === 0 && article.preview) {
+            images.unshift(article.preview);
+          }
+
+          article.images = images.slice(0, 3);
+
+          return article;
+        });
+      },
+
+      noMore () {
+        return (
+          this.pagination.last_page >= 1 &&
+          this.pagination.current_page >= this.pagination.last_page
+        );
+      },
+    },
+
+    methods: {
+      @Debounce(200)
+      refreshList () {
+        if (this.loading) return;
+
+        this.$store.dispatch({
+          type: 'articleList/fetch',
+          payload: {
+            q: this.searchValue,
+          },
+        });
+      },
+
+      @Debounce(200)
+      appendList () {
+        if (this.loading) return;
+
+        this.$store.dispatch({
+          type: 'articleList/appendFetch',
+          payload: {
+            q: this.searchValue,
+          },
+        });
+      },
+
+      showSearch () {
+        this.searchShowed = true;
+      },
+
+      hideSearch () {
+        this.searchValue = '';
+        this.searchShowed = false;
+      },
+
+      clearSearch () {
+        this.searchValue = '';
+      },
+
+      onSearch (e) {
+        this.searchValue = e.$wx.detail.value;
+        this.refreshList();
+      },
+    },
+
+    created () {
+      this.refreshList();
+    },
+
+    onPullDownRefresh () {
+      this.refreshList();
+    },
+
+    onReachBottom () {
+      if (this.noMore) return;
+
+      this.appendList();
+    },
+  });
+</script>
+
+<config>
+  {
+    backgroundTextStyle: 'dark',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      item: './components/item',
+      item1: './components/item1',
+      item2: './components/item2',
+    },
+  }
+</config>
