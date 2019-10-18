@@ -8,7 +8,7 @@
     min-height: 100vh;
   }
 
-  .weui-search-bar__cancel-btn {
+  .searchbar .weui-search-bar__cancel-btn {
     color: #13C2C2;
   }
 
@@ -26,67 +26,37 @@
       left: 0;
     }
   }
-
-  .weui-loading__wrp {
-    padding: 16px;
-    text-align: center;
-  }
 </style>
 
 <template>
-  <div class="page">
-    <div class="page__bd">
-      <div class="weui-panel weui-panel_access">
-        <div class="scroll-view">
-          <!--搜索框开始-->
-          <div class="weui-search-bar">
-            <div class="weui-search-bar__form">
-              <div class="weui-search-bar__box">
-                <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
-                <input
-                  type="text"
-                  class="weui-search-bar__input"
-                  placeholder="搜索"
-                  value="{{searchValue}}"
-                  :focus="searchShowed"
-                  bindconfirm="onSearch"
-                />
-                <div class="weui-icon-clear" v-show="searchValue.length > 0" @tap="clearSearch">
-                  <icon type="clear" size="14"></icon>
-                </div>
-              </div>
+  <view class="page">
+    <view class="page__bd">
+      <view class="weui-panel weui-panel_access">
+        <view class="scroll-view">
+          <searchbar ext-class="searchbar" bindconfirm="onSearch" bindclear="clearSearch"></searchbar>
 
-              <label class="weui-search-bar__label" v-show="!searchShowed" @tap="showSearch">
-                <icon class="weui-icon-search" type="search" size="14"></icon>
-                <view class="weui-search-bar__text">搜索</view>
-              </label>
-            </div>
-            <div class="weui-search-bar__cancel-btn" v-show="searchShowed" @tap="hideSearch">取消</div>
-          </div>
-          <!--搜索框结束-->
-
-          <!--列表开始-->
-          <div v-if="searchValue.length > 0" class="weui-panel__hd">关于 “{{searchValue}}” 的搜索结果</div>
-          <div class="weui-panel__bd">
-            <a href="" v-for="article in articles" hover-class="weui-cell_active">
-              <item v-if="article.images.length === 0" :article="article"></item>
-              <item1 v-else-if="article.images.length === 1" :article="article"></item1>
-              <item2 v-else :article="article"></item2>
-            </a>
-          </div>
-          <!--列表结束-->
-
-          <view v-show="loading" class="weui-loading__wrp">
-            <view class="loading wx_dot_loading"></view>
+          <view v-show="searchValue.length > 0" class="weui-panel__hd">关于 “{{searchValue}}” 的搜索结果</view>
+          <view class="weui-panel__bd">
+            <navigator
+              url="/pages/articles/show/index?id={{article.id}}"
+              v-for="article in articles"
+              hover-class="weui-cell_active"
+            >
+              <list-item v-if="article.images.length === 0" :article="article"></list-item>
+              <list-item1 v-else-if="article.images.length === 1" :article="article"></list-item1>
+              <list-item2 v-else :article="article"></list-item2>
+            </navigator>
           </view>
+
+          <loading :show="loading"></loading>
 
           <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
             <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
           </view>
-        </div>
-      </div>
-    </div>
-  </div>
+        </view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
@@ -94,14 +64,16 @@
   import { mapState } from '@wepy/x';
   import unionBy from 'lodash/unionBy';
   import Debounce from 'lodash-decorators/debounce';
+  import mapAuthState from '@/mixins/mapAuthState';
   import store from './vuex';
   import { matchImages } from './utils';
 
   wepy.page({
     store,
 
+    mixins: [mapAuthState],
+
     data: {
-      searchShowed: false,
       searchValue: '',
     },
 
@@ -137,15 +109,17 @@
 
     methods: {
       @Debounce(200)
-      refreshList () {
+      async refreshList () {
         if (this.loading) return;
 
-        this.$store.dispatch({
+        await this.$store.dispatch({
           type: 'articleList/fetch',
           payload: {
             q: this.searchValue,
           },
         });
+
+        wx.stopPullDownRefresh();
       },
 
       @Debounce(200)
@@ -160,17 +134,9 @@
         });
       },
 
-      showSearch () {
-        this.searchShowed = true;
-      },
-
-      hideSearch () {
-        this.searchValue = '';
-        this.searchShowed = false;
-      },
-
       clearSearch () {
         this.searchValue = '';
+        this.refreshList();
       },
 
       onSearch (e) {
@@ -181,6 +147,17 @@
 
     created () {
       this.refreshList();
+    },
+
+    onShow () {
+      if (this.unreadCount > 0) {
+        return wx.setTabBarBadge({
+          index: 1,
+          text: this.unreadCount > 99 ? '99+' : String(this.unreadCount),
+        });
+      }
+
+      wx.removeTabBarBadge({ index: 1 });
     },
 
     onPullDownRefresh () {
@@ -200,9 +177,11 @@
     backgroundTextStyle: 'dark',
     enablePullDownRefresh: true,
     usingComponents: {
-      item: './components/item',
-      item1: './components/item1',
-      item2: './components/item2',
+      loading: '~@/components/weui/loading/loading',
+      searchbar: '~@/components/weui/searchbar/searchbar',
+      'list-item': './components/list-item',
+      'list-item1': './components/list-item1',
+      'list-item2': './components/list-item2',
     },
   }
 </config>

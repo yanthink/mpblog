@@ -1,0 +1,63 @@
+<style lang="less">
+  .btn {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 8px;
+
+    image {
+      margin: 0 !important;
+      width: 20px;
+      height: 20px;
+    }
+
+    text {
+      line-height: 1;
+    }
+  }
+</style>
+
+<template>
+  <relation-btn :relation="relation" action="like" :item="item" @after-toggle="afterToggle">
+    <view class="btn like-btn" slot="on">
+      <image src="../../static/png/liked_81x81.png"></image>
+      <text>{{item.cache.likes_count}}</text>
+    </view>
+    <view class="btn like-btn" slot="off">
+      <image src="../../static/png/like_81x81.png"></image>
+      <text>{{item.cache.likes_count}}</text>
+    </view>
+  </relation-btn>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+
+  wepy.component({
+    props: {
+      relation: {
+        type: String,
+        required: true,
+      },
+      item: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    methods: {
+      afterToggle (bool) {
+        bool ? this.item.cache.likes_count++ : this.item.cache.likes_count--;
+
+        this.$emit('after-toggle');
+      },
+    },
+  });
+</script>
+
+<config>
+  {
+    usingComponents: {
+      'relation-btn': './relation-btn',
+    },
+  }
+</config>

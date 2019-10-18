@@ -7,6 +7,13 @@ export async function login (code) {
   });
 }
 
+export async function scanLogin (code, uuid) {
+  return request('auth/wechat_scan_login', {
+    method: 'POST',
+    data: { code, uuid },
+  });
+}
+
 export async function register (code, params) {
   return request('auth/wechat_register', {
     method: 'POST',

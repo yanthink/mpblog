@@ -1,0 +1,86 @@
+<style lang="less">
+  page, .page, .page__bd {
+    background-color: #fff;
+    height: 100%;
+  }
+
+  .weui-loading__wrp {
+    padding: 16px;
+    text-align: center;
+  }
+</style>
+
+<template>
+  <view class="page">
+    <view class="page__bd">
+      <loading :show="!articleLoaded"></loading>
+      <view class="content-box" v-if="articleLoaded">
+        <scroll-view
+          style="height: 100%"
+          scroll-y
+          scroll-with-animation
+          enable-back-to-top
+        >
+          <article-content :article="article" :authorized="authorized"></article-content>
+        </scroll-view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import { mapActions } from '@wepy/x';
+  import mapAuthState from '@/mixins/mapAuthState';
+  import store from './vuex';
+
+  wepy.page({
+    store,
+
+    data: {
+      id: 0,
+    },
+
+    mixins: [mapAuthState],
+
+    computed: {
+      article () {
+        return this.$store.state.articleShow.article;
+      },
+      articleLoaded () {
+        return this.article.id === this.id;
+      },
+    },
+
+    methods: {
+      ...mapActions('articleShow', [
+        'fetchArticle',
+      ]),
+    },
+
+    watch: {
+      article () {
+      },
+    },
+
+    onLoad ({ id }) {
+      this.id = Number(id);
+      this.fetchArticle({ id, include: 'tags', htmltowxml: 1 });
+    },
+
+    onUnload () {
+      this._watcher.teardown();
+
+      this.$store.commit('articleShow/setArticle', {});
+    },
+  });
+</script>
+
+<config>
+  {
+    usingComponents: {
+      loading: '~@/components/weui/loading/loading',
+      'article-content': './components/article-content',
+    },
+  }
+</config>

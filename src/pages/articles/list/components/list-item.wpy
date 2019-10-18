@@ -1,0 +1,59 @@
+<style lang="less">
+  .weui-media-box:before {
+    left: 16px;
+  }
+
+  .weui-media-box:first-child:before {
+    left: 16px;
+    display: block;
+  }
+</style>
+
+<template>
+  <view class="weui-media-box weui-media-box_text">
+    <view class="weui-media-box__title weui-media-box__title_in-text">{{article.title}}</view>
+    <view class="weui-media-box__desc">{{desc}}</view>
+    <view class="weui-media-box__info">
+      <view class="weui-media-box__info__meta">{{friendlyViewsCount}} 阅读</view>
+      <view class="weui-media-box__info__meta">{{friendlyCommentsCount}} 评论</view>
+      <view class="weui-media-box__info__meta">{{timeago}}</view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import get from 'lodash/get';
+  import { diffForHumans, friendlyNumbers } from '@/utils/utils';
+
+  wepy.component({
+    options: {
+      addGlobalClass: true,
+    },
+
+    props: {
+      article: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    computed: {
+      timeago () {
+        return diffForHumans(get(this.article, 'created_at'));
+      },
+
+      friendlyViewsCount () {
+        return friendlyNumbers(get(this.article, 'cache.views_count', 0));
+      },
+
+      friendlyCommentsCount () {
+        return friendlyNumbers(get(this.article, 'cache.comments_count', 0));
+      },
+
+      desc () {
+        return get(this.article, 'content.markdown', '').substr(0, 80);
+      },
+    },
+  });
+</script>

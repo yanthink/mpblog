@@ -11,36 +11,13 @@ export default {
     },
   },
 
-  mutations: {
-    LOADING_SHOW (state) {
-      state.loading = true;
-    },
-    LOADING_HIDE (state) {
-      state.loading = false;
-    },
-    queryList (state, { payload }) {
-      state.list = payload.list;
-      state.pagination = payload.pagination;
-    },
-    appendList (state, { payload }) {
-      state.list = state.list.concat(payload.list);
-      state.pagination = payload.pagination;
-    },
-  },
-
   actions: {
     async fetch ({ commit }, { payload }) {
       commit('LOADING_SHOW');
 
-      const { data, meta } = await services.queryArticles(payload);
+      const { data: list, meta: pagination } = await services.queryArticles(payload);
 
-      commit({
-        type: 'queryList',
-        payload: {
-          list: data,
-          pagination: meta,
-        },
-      });
+      commit('queryList', { list, pagination });
 
       commit('LOADING_HIDE');
     },
@@ -48,20 +25,31 @@ export default {
     async appendFetch ({ commit, state }, { payload }) {
       commit('LOADING_SHOW');
 
-      const { data, meta } = await services.queryArticles({
+      const { data: list, meta: pagination } = await services.queryArticles({
         ...payload,
         page: state.pagination.current_page + 1,
       });
 
-      commit({
-        type: 'appendList',
-        payload: {
-          list: data,
-          pagination: meta,
-        },
-      });
+      commit('appendList', { list, pagination });
 
       commit('LOADING_HIDE');
+    },
+  },
+
+  mutations: {
+    LOADING_SHOW (state) {
+      state.loading = true;
+    },
+    LOADING_HIDE (state) {
+      state.loading = false;
+    },
+    queryList (state, { list, pagination }) {
+      state.list = list;
+      state.pagination = pagination;
+    },
+    appendList (state, { list, pagination }) {
+      state.list = state.list.concat(list);
+      state.pagination = pagination;
     },
   },
 };

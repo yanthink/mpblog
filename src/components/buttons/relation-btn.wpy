@@ -1,0 +1,66 @@
+<template>
+  <view @tap="toggle">
+    <slot v-if="status" name="on"></slot>
+    <slot v-else name="off"></slot>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import request from '@/mixins/request';
+
+  wepy.component({
+    options: {
+      multipleSlots: true,
+    },
+
+    mixins: [request],
+
+    props: {
+      relation: {
+        type: String,
+        required: true,
+      },
+      action: {
+        type: String,
+        required: true,
+      },
+      item: {
+        type: Object,
+        required: true,
+        value: {},
+      },
+    },
+
+    data: {
+      types: {
+        article: 'App\\Models\\Article',
+      },
+      actions: {
+        like: 'has_liked',
+        favorite: 'has_favorited',
+      },
+      status: false,
+    },
+
+    ready () {
+      this.status = this.item[this.actions[this.action]];
+    },
+
+    methods: {
+      async toggle () {
+        await this.request(`relations/${this.action}`, {
+          method: 'POST',
+          data: {
+            followable_type: this.types[this.relation],
+            followable_id: this.item.id,
+          },
+        });
+
+        this.item[this.actions[this.action]] = this.status = !this.status;
+
+        this.$emit('after-toggle', this.status);
+      },
+    },
+  });
+</script>

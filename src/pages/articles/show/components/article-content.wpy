@@ -1,0 +1,182 @@
+<style lang="less">
+  .weui-article__head {
+    padding: 8px 10px 0 10px;
+    border-bottom: 1px solid #e5e5e5;
+
+    .weui-article__h1 {
+      margin-bottom: 10px;
+    }
+
+    .weui-article__info {
+      padding-bottom: 10px;
+      font-size: 14px;
+      color: #cecece;
+      line-height: 1em;
+      list-style: none;
+      overflow: hidden;
+    }
+
+    .weui-article__info__meta {
+      float: left;
+      padding-right: 1em;
+    }
+
+    .weui-article__section {
+      margin-bottom: 1em;
+    }
+  }
+
+  .weui-article__section {
+    padding: 8px;
+
+    image {
+      margin: 4px 0;
+    }
+  }
+
+  .article-url {
+    margin: 20px 5px 0 5px;
+    background-color: #f2f2f2;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+  }
+
+  .tags-wrp {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    line-height: 1;
+
+    .icon-tags {
+      margin-right: 8px;
+
+      image {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .tag {
+      border: 1px solid #ffd591;
+      border-radius: 4px;
+      font-size: 12px;
+      padding: 4px 8px;
+      margin-right: 4px;
+      color: #fa8c16;
+      background: #fff7e6;
+    }
+  }
+
+  .actions-wrp {
+    display: flex;
+    justify-content: center;
+    margin: 16px auto;
+  }
+
+  .actions-wrp image {
+    width: 40px !important;
+    height: 40px !important;
+  }
+</style>
+
+<template>
+  <view class="article-box" id="article-box">
+    <!-- 文章头部开始 -->
+    <view class="weui-article__head">
+      <view class="weui-article__h1">{{article.title}}</view>
+      <view class="weui-article__info">
+        <view class="weui-article__info__meta">
+          {{friendlyViewsCount}} 阅读
+        </view>
+        <view class="weui-article__info__meta">{{friendlyCommentsCount}} 评论</view>
+        <view class="weui-article__info__meta weui-media-box__info__meta_extra">
+          {{timeago}}
+        </view>
+      </view>
+    </view>
+    <!-- 文章头部结束 -->
+
+    <!-- 文章内容开始 -->
+    <view class="weui-article__section">
+      <htmltowxml
+        :json="article.content.htmltowxml"
+        :showLoading="false"
+        highlightStyle="darcula"
+      >
+      </htmltowxml>
+
+      <view
+        v-show="article.id"
+        class="article-url"
+        data-url="https://www.einsition.com/articles/{{article.id}}/show"
+      >
+        文章链接：https://www.einsition.com/articles/{{article.id}}
+      </view>
+
+      <view class="tags-wrp">
+        <view class="icon-tags">
+          <image src="../../../../static/png/tags_81x81.png"></image>
+        </view>
+        <view v-for="tag in article.tags" class="tag">
+          {{tag.name}}
+        </view>
+      </view>
+
+      <view class="actions-wrp">
+        <authorized-check :authorized="authorized">
+          <like-btn relation="article" :item="article"></like-btn>
+        </authorized-check>
+        <authorized-check :authorized="authorized">
+          <favorite-btn relation="article" :item="article"></favorite-btn>
+        </authorized-check>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import get from 'lodash/get';
+  import { diffForHumans, friendlyNumbers } from '@/utils/utils';
+
+  wepy.component({
+    props: {
+      article: {
+        type: Object,
+        required: true,
+      },
+      authorized: {
+        type: Boolean,
+        value: false,
+      },
+    },
+
+    computed: {
+      timeago () {
+        return diffForHumans(get(this.article, 'created_at'));
+      },
+
+      friendlyViewsCount () {
+        return friendlyNumbers(get(this.article, 'cache.views_count', 0));
+      },
+
+      friendlyCommentsCount () {
+        return friendlyNumbers(get(this.article, 'cache.comments_count', 0));
+      },
+    },
+  });
+</script>
+
+<config>
+  {
+    usingComponents: {
+      htmltowxml: '~@/components/html2wxml/html2wxml',
+      'authorized-check': '~@/components/authorized-check',
+      'like-btn': '~@/components/buttons/like-btn',
+      'favorite-btn': '~@/components/buttons/favorite-btn',
+    },
+  }
+</config>

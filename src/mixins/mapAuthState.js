@@ -1,11 +1,19 @@
 export default {
   computed: {
+    token () {
+      return this.$app.$store.state.auth.token;
+    },
+
     user () {
-      return this.$app.$options.store.state.auth.user;
+      return this.$app.$store.state.auth.user;
     },
 
     unreadCount () {
-      return this.$app.$options.store.state.auth.unread_count;
+      return this.$app.$store.state.auth.unread_count;
+    },
+
+    authorized () {
+      return !!this.token;
     },
 
     isLogged () {
@@ -13,11 +21,14 @@ export default {
     },
   },
 
-  watch: {
-    user (newUser, oldUser) {
-    },
+  created () {
+    ['token', 'user', 'unreadCount'].map(k => {
+      this.$watch(k, () => {
+      });
+    });
+  },
 
-    unreadCount (newUnreadCount, oldUnreadCount) {
-    },
+  onUnload () {
+    this._watcher.teardown();
   },
 };

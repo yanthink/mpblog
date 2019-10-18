@@ -6,6 +6,7 @@ const prod = process.env.NODE_ENV === 'production';
 const plugins = [
   DefinePlugin({
     API_URL: !prod ? '"https://api.blog.test/api/"' : '"https://www.einsition.com/api/"',
+    SOCKET_HOST: !prod ? '"https://api.blog.test"' : '"https://www.einsition.com"',
     USER_TOKEN_STORAGE_KEY: '"APP_USER_TOKEN"',
   }),
 ];
@@ -21,6 +22,7 @@ module.exports = {
   build: {},
   static: [
     'src/static',
+    'src/components/weui/weui-wxss',
   ],
   resolve: {
     alias: {

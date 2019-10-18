@@ -1,17 +1,16 @@
 <style lang="less">
-  @import (css) './static/style/weui.wxss';
+  @import (css) './components/weui/weui-wxss/dist/style/weui.wxss';
 
   page {
     background-color: #F8F8F8;
   }
 
-  .container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
+  .wx_loading_view {
+    padding: 16px;
+  }
+
+  .weui-loadmore {
+    margin-bottom: .6em;
   }
 </style>
 
@@ -29,26 +28,23 @@
   wepy.app({
     store: require('./vuex').default,
 
-    onError (error) {
-      console.info(error);
-    },
-
     hooks: {
       // App 级别 hook，对整个 App 生效
       // 同时存在 Page hook 和 App hook 时，优先执行 Page hook，返回值再交由 App hook 处
       'before-setData': function (dirty) {
-        console.log('setData dirty: ', dirty);
+        console.log('setData dirty: ', dirty, moment().valueOf());
         return dirty;
       },
     },
 
-
     onLaunch () {
-      this.$options.store.dispatch('auth/checkUserToken');
+      this.$store = this.$options.store;
+      this.$store.dispatch('auth/checkUserToken');
 
-      eventHub.$on('app-launch', (...args) => {
-        console.log('app-launch event emitted, the params are:');
-        console.log(args);
+      eventHub.$on('http-error', (error) => {
+        if (error.response.statusCode === 401 && this.$store.state.auth.token) {
+          this.$store.dispatch('auth/attemptLogin');
+        }
       });
     },
   });
@@ -59,6 +55,8 @@
     pages: [
       'pages/account/center/index',
       'pages/articles/list/index',
+      'pages/articles/show/index',
+      'pages/auth/scan-login',
     ],
     window: {
       backgroundColor: '#F8F8F8',

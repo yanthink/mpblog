@@ -1,0 +1,59 @@
+<style lang="less">
+  .btn {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 8px;
+
+    image {
+      margin: 0 !important;
+      width: 20px;
+      height: 20px;
+    }
+
+    text {
+      line-height: 1;
+    }
+  }
+</style>
+
+<template>
+  <relation-btn :relation="relation" action="favorite" :item="item" @after-toggle="afterToggle">
+    <view class="btn favorite-btn" slot="on">
+      <image src="../../static/png/favorited_81x81.png"></image>
+    </view>
+    <view class="btn favorite-btn" slot="off">
+      <image src="../../static/png/favorite_81x81.png"></image>
+    </view>
+  </relation-btn>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+
+  wepy.component({
+    props: {
+      relation: {
+        type: String,
+        required: true,
+      },
+      item: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    methods: {
+      afterToggle (bool) {
+        bool ? this.item.cache.favorites_count++ : this.item.cache.favorites_count--;
+      },
+    },
+  });
+</script>
+
+<config>
+  {
+    usingComponents: {
+      'relation-btn': './relation-btn',
+    },
+  }
+</config>

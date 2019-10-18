@@ -1,0 +1,76 @@
+<style lang="less">
+  .page__hd {
+    box-sizing: border-box;
+    padding: 40px 0 20px 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    image {
+      width: 200px;
+      height: 200px;
+    }
+  }
+</style>
+
+<template>
+  <view class="page">
+    <view class="page__hd">
+      <view style="text-align: center">
+        <image src="../../static/png/desktop_200x200.png"></image>
+        <view style="text-align: center">
+          <view style="font-size: 16px">WEB 端登录确认</view>
+        </view>
+      </view>
+
+      <view style="text-align: center">
+        <button
+          style="width: 200px"
+          class="weui-btn"
+          type="primary"
+          open-type="getUserInfo"
+          bindgetuserinfo="login"
+        >
+          登录
+        </button>
+        <view style="font-size: 16px; margin-top: 20px; color: rgba(0, 0, 0, 0.5)">
+          <navigator open-type="exit" target="miniProgram">取消登录</navigator>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import Debounce from 'lodash-decorators/debounce';
+
+  wepy.page({
+    data: {
+      uuid: '',
+    },
+    methods: {
+      @Debounce(1000)
+      async login (e) {
+        if (e.$wx.detail.userInfo) {
+          await this.$app.$store.dispatch('auth/attemptScanLogin', this.uuid);
+
+          wx.reLaunch({
+            url: '/pages/account/center/index',
+          });
+
+          wx.showToast({
+            title: '登录成功',
+            icon: 'none',
+          });
+        }
+      },
+    },
+
+    onLoad (query) {
+      this.uuid = decodeURIComponent(query.scene);
+    },
+  });
+</script>
+

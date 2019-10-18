@@ -1,16 +1,4 @@
 <style lang="less">
-  .reg-btn {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    z-index: 999;
-    opacity: 0;
-
-    .button-hover {
-      background-color: transparent;
-    }
-  }
-
   .userinfo {
     background: #fff;
     position: relative;
@@ -41,90 +29,89 @@
     margin-top: 10px;
   }
 
-  .menu .weui-cell__hd image {
-    margin-right: 5px;
-    vertical-align: middle;
-    width: 20px;
-    height: 20px;
+  .menu .weui-badge {
+    line-height: 1.4;
+    font-size: 11px;
   }
 
-  .notification-box {
-    position: relative;
-  }
-
-  .notification-box .weui-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-  }
 </style>
 
 <template>
-  <div class="page">
-    <div class="page__bd">
-      <button
-        v-if="!isLogged"
-        class="reg-btn"
-        open-type="getUserInfo"
-        bindgetuserinfo="register"
-      >
-      </button>
+  <view class="page">
+    <view class="page__bd">
+      <authorized-check :authorized="authorized">
+        <view class="user-box">
+          <view class="userinfo">
+            <view v-if="isLogged">
+              <view class="userinfo-avatar">
+                <image :src="user.avatar"></image>
+              </view>
+              <view>{{user.username}}</view>
+            </view>
+            <view v-else>
+              <view class="userinfo-avatar">
+                <open-data type="userAvatarUrl"></open-data>
+              </view>
+              <open-data type="userNickName"></open-data>
+            </view>
+          </view>
 
-      <div class="user-box">
-        <div class="userinfo">
-          <div v-if="isLogged">
-            <div class="userinfo-avatar">
-              <img :src="user.avatar" alt="头像" />
-            </div>
-            <div>{{user.username}}</div>
-          </div>
-          <div v-else>
-            <div class="userinfo-avatar">
-              <open-data type="userAvatarUrl"></open-data>
-            </div>
-            <open-data type="userNickName"></open-data>
-          </div>
-        </div>
+          <cells ext-class="menu">
+            <cell :link="true" :hover="true">
+              <view>我的收藏</view>
+            </cell>
+            <cell :link="true" :hover="true">
+              <view>我的评论</view>
+            </cell>
+            <cell :link="true" :hover="true">
+              <view>我的回复</view>
+            </cell>
+            <cell :link="true" :hover="true">
+              <view>我的点赞</view>
+            </cell>
+          </cells>
 
-        <div class="weui-cells weui-cells_after-title menu">
-          <a href="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-            <view class="weui-cell__bd">我的收藏</view>
-            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-          </a>
-          <a href="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-            <view class="weui-cell__bd">我的评论</view>
-            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-          </a>
-          <a href="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-            <view class="weui-cell__bd">我的回复</view>
-            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-          </a>
-          <a href="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-            <view class="weui-cell__bd">我的点赞</view>
-            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-          </a>
-        </div>
-
-        <div class="weui-cells weui-cells_after-title menu">
-          <a href="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
-            <div class="weui-cell__bd notification-box">
-              消息通知
-              <div v-show="unreadCount" class="weui-badge">{{unreadCount > 99 ? '99+' : unreadCount}}</div>
-            </div>
-            <div class="weui-cell__ft weui-cell__ft_in-access"></div>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+          <cells ext-class="menu">
+            <cell :link="true" :hover="true">
+              <view>消息通知</view>
+              <view v-show="unreadCount" slot="footer" style="line-height: 1">
+                <badge :content="unreadCount > 99 ? '99+' : unreadCount"></badge>
+              </view>
+            </cell>
+          </cells>
+        </view>
+      </authorized-check>
+    </view>
+  </view>
 </template>
 
 <script>
   import wepy from '@wepy/core';
   import mapAuthState from '@/mixins/mapAuthState';
-  import register from '@/mixins/register';
 
   wepy.page({
-    mixins: [mapAuthState, register],
+    mixins: [mapAuthState],
+
+    onShow () {
+      if (this.unreadCount > 0) {
+        return wx.setTabBarBadge({
+          index: 1,
+          text: this.unreadCount > 99 ? '99+' : String(this.unreadCount),
+        });
+      }
+
+      wx.removeTabBarBadge({ index: 1 });
+    },
   });
 </script>
+
+<config>
+  {
+    usingComponents: {
+      'authorized-check': '~@/components/authorized-check',
+      cell: '~@/components/weui/cell/cell',
+      cells: '~@/components/weui/cells/cells',
+      badge: '~@/components/weui/badge/badge',
+    },
+  }
+</config>

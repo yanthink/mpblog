@@ -1,3 +1,5 @@
+import eventHub from '@/common/eventHub';
+
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -35,9 +37,6 @@ function checkStatus (res) {
         icon: 'none',
       });
       break;
-    case 401:
-      // todo;
-      break;
     case 500:
     case 501:
     case 503:
@@ -49,11 +48,16 @@ function checkStatus (res) {
 
   const error = new Error(errorText);
   error.response = res;
+
+  eventHub.$emit('http-error', error);
+
   throw error;
 }
 
 function Http () {
   this.setToken = token => this.defaults.header.Authorization = `Bearer ${token}`;
+
+  this.setSocketId = socketId => this.defaults.header['X-Socket-ID'] = socketId;
 
   this.request = async (url, options = {}) => {
     return new Promise((resolve, reject) => {
@@ -72,7 +76,6 @@ function Http () {
           resolve({ ...res, ...meta });
         },
         fail (res) {
-          console.info(res);
           reject(res);
         },
       };
@@ -87,10 +90,13 @@ Http.prototype.defaults = {
   header: {
     Accept: 'application/json',
     'Content-Type': 'application/json; charset=utf-8',
+    'X-Client': 'wechat',
   },
   dataType: 'json',
 };
 
+
 export const http = new Http();
 export const setToken = http.setToken;
+export const setSocketId = http.setSocketId;
 export default http.request;

@@ -10,3 +10,11 @@ export function diffForHumans (time) {
 
   return mtime.fromNow();
 }
+
+export function friendlyNumbers (n) {
+  if (n >= 1000) {
+    return Math.floor(n / 1000) + 'k';
+  }
+
+  return String(n);
+}
