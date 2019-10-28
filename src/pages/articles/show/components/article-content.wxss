@@ -1,0 +1,71 @@
+.weui-article__head {
+  padding: 8px 10px 0 10px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.weui-article__head .weui-article__h1 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.weui-article__head .weui-article__info {
+  padding-bottom: 10px;
+  font-size: 14px;
+  color: #cecece;
+  line-height: 1em;
+  list-style: none;
+  overflow: hidden;
+}
+
+.weui-article__head .weui-article__info__meta {
+  float: left;
+  padding-right: 1em;
+}
+
+.weui-article__head .weui-article__section {
+  margin-bottom: 1em;
+}
+
+.weui-article__section {
+  padding: 8px;
+}
+
+.weui-article__section image {
+  margin: 4px 0;
+}
+
+.article-url {
+  margin: 20px 5px 0 5px;
+  background-color: #f2f2f2;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+.tags-wrap {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  line-height: 1;
+}
+
+.tags-wrap .icon-tags {
+  margin-right: 8px;
+}
+
+.tags-wrap .icon-tags image {
+  width: 20px;
+  height: 20px;
+}
+
+.tags-wrap .tag {
+  border: 1px solid #ffd591;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-right: 4px;
+  color: #fa8c16;
+  background: #fff7e6;
+}

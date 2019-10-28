@@ -1,0 +1,10 @@
+<relation-btn relation="{{ relation }}" action="like" item="{{ item }}" bind:after-toggle="afterToggle">
+  <view class="btn like-btn" slot="on">
+    <image src="../../static/png/liked_81x81.png"></image>
+    <text hidden="{{hideText}}">{{ item.cache.likes_count }}</text>
+  </view>
+  <view class="btn like-btn" slot="off">
+    <image src="../../static/png/like_81x81.png"></image>
+    <text hidden="{{hideText}}">{{ item.cache.likes_count }}</text>
+  </view>
+</relation-btn>

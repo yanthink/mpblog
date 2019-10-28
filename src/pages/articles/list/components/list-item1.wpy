@@ -52,9 +52,9 @@
     <view class="weui-media-box__bd weui-media-box__bd_in-appmsg left">
       <view class="weui-media-box__title">{{article.title}}</view>
       <view class="weui-media-box__info">
-        <view class="weui-media-box__info__meta">{{friendlyViewsCount}} 阅读</view>
-        <view class="weui-media-box__info__meta">{{friendlyCommentsCount}} 评论</view>
-        <view class="weui-media-box__info__meta">{{timeago}}</view>
+        <view class="weui-media-box__info__meta">{{ article.friendly_views_count }} 阅读</view>
+        <view class="weui-media-box__info__meta">{{ article.friendly_comments_count }} 评论</view>
+        <view class="weui-media-box__info__meta">{{ article.created_at_timeago }}</view>
       </view>
     </view>
     <view class="weui-media-box__hd weui-media-box__hd_in-appmsg weui-media-box__thumb">
@@ -65,8 +65,6 @@
 
 <script>
   import wepy from '@wepy/core';
-  import get from 'lodash/get';
-  import { diffForHumans, friendlyNumbers } from '@/utils/utils';
 
   wepy.component({
     options: {
@@ -77,20 +75,6 @@
       article: {
         type: Object,
         required: true,
-      },
-    },
-
-    computed: {
-      timeago () {
-        return diffForHumans(get(this.article, 'created_at'));
-      },
-
-      friendlyViewsCount () {
-        return friendlyNumbers(get(this.article, 'cache.views_count', 0));
-      },
-
-      friendlyCommentsCount () {
-        return friendlyNumbers(get(this.article, 'cache.comments_count', 0));
       },
     },
   });

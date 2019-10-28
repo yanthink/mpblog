@@ -1,0 +1,4 @@
+<view catchtap="toggle">
+  <slot wx:if="{{ item[actions[action]] }}" name="on"></slot>
+  <slot wx:else name="off"></slot>
+</view>

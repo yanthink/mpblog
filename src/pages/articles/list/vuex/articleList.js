@@ -1,3 +1,4 @@
+import unionBy from 'lodash/unionBy';
 import * as services from '../services';
 
 export default {
@@ -15,24 +16,26 @@ export default {
     async fetch ({ commit }, { payload }) {
       commit('LOADING_SHOW');
 
-      const { data: list, meta: pagination } = await services.queryArticles(payload);
-
-      commit('queryList', { list, pagination });
-
-      commit('LOADING_HIDE');
+      try {
+        const { data: list, meta: pagination } = await services.queryArticles(payload);
+        commit('queryList', { list, pagination });
+      } finally {
+        commit('LOADING_HIDE');
+      }
     },
 
     async appendFetch ({ commit, state }, { payload }) {
       commit('LOADING_SHOW');
 
-      const { data: list, meta: pagination } = await services.queryArticles({
-        ...payload,
-        page: state.pagination.current_page + 1,
-      });
-
-      commit('appendList', { list, pagination });
-
-      commit('LOADING_HIDE');
+      try {
+        const { data: list, meta: pagination } = await services.queryArticles({
+          ...payload,
+          page: state.pagination.current_page + 1,
+        });
+        commit('appendList', { list, pagination });
+      } finally {
+        commit('LOADING_HIDE');
+      }
     },
   },
 
@@ -48,7 +51,7 @@ export default {
       state.pagination = pagination;
     },
     appendList (state, { list, pagination }) {
-      state.list = state.list.concat(list);
+      state.list = unionBy(state.list.concat(list), 'id');
       state.pagination = pagination;
     },
   },

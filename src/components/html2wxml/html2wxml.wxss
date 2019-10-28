@@ -140,6 +140,7 @@
     background: #fafafa;
     border: 1px solid #ececec;
     border-radius: 6px;
+  margin-bottom: 16rpx;
 }
 
 /* 带行号语法高亮样式 */
@@ -222,7 +223,7 @@
 }
 
 .wxml-blockquote {
-    margin: 0;
+    margin: 0 0 16rpx;
     padding: 5px 10px;
     font-size: 28rpx;
     line-height: 1.4;
@@ -241,7 +242,7 @@
 
 .wxml-hr {
     unicode-bidi: isolate;
-    margin: 5px 0;
+    margin: 32rpx 0;
     overflow: hidden;
     border-style: inset;
     border-width: 1px;
@@ -358,6 +359,11 @@
 .wxml-td:last-child, .wxml-th:last-child {
     border-right: 1px solid #e0e0e0;
 }
+
+.wxml-blockquote .wxml-p {
+  margin-bottom: 0;
+}
+
 @import "highlight-styles/darcula.wxss";
 @import "highlight-styles/default.wxss";
 @import "highlight-styles/dracula.wxss";

@@ -1,12 +1,107 @@
 <style lang="less">
   page, .page, .page__bd {
     background-color: #fff;
-    height: 100%;
+    height: 100vh;
+  }
+
+  .page__bd {
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .content-wrap {
+    flex: 1;
+    overflow: hidden;
   }
 
   .weui-loading__wrp {
     padding: 16px;
     text-align: center;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    margin: 16px auto;
+
+    .action {
+      margin: 0 8px;
+    }
+  }
+
+  .actions image {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .comments {
+    margin-top: 40px;
+    border-top: 1px solid #d7d6dc;
+  }
+
+
+  .form-wrap {
+    border-top: 1px solid #d7d6dc;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .textarea {
+    background-color: #efeff4;
+    border-radius: 4px;
+    font-size: 14px;
+    flex: 1;
+    padding: 8px;
+  }
+
+  .ios__textarea {
+    padding: 0;
+  }
+
+  .form-actions-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 4px;
+
+    .action {
+      margin: 0 8px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .message {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .badge {
+        position: absolute;
+        top: -6px;
+        left: 14px;
+      }
+    }
+
+    .submit {
+      color: #13C2C2;
+    }
+
+    .disabled {
+      color: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .form-actions-wrap image {
+    width: 24px !important;
+    height: 24px !important;
   }
 </style>
 
@@ -14,16 +109,86 @@
   <view class="page">
     <view class="page__bd">
       <loading :show="!articleLoaded"></loading>
-      <view class="content-box" v-if="articleLoaded">
+      <view v-show="articleLoaded" class="content-wrap" @tap="onTextareaBlur">
         <scroll-view
           style="height: 100%"
-          scroll-y
-          scroll-with-animation
-          enable-back-to-top
+          :scroll-y="true"
+          :scroll-with-animation="true"
+          :scroll-anchoring="true"
+          :enable-back-to-top="true"
+          :scroll-into-view="anchor"
+          :scroll-top="scrollTop"
+          @scrolltolower="appendFetchComments"
         >
-          <article-content :article="article" :authorized="authorized"></article-content>
+          <view class="content" id="content">
+            <article-content :article="article" :authorized="auth"></article-content>
+          </view>
+          <view class="actions">
+            <view class="action">
+              <authorized-check :authorized="authorized">
+                <like-btn relation="article" :item="article"></like-btn>
+              </authorized-check>
+            </view>
+            <view class="action">
+              <authorized-check :authorized="authorized">
+                <favorite-btn relation="article" :item="article"></favorite-btn>
+              </authorized-check>
+            </view>
+          </view>
+
+          <view class="comments" id="comments">
+            <article-comments
+              :comments="comments"
+              :pagination="pagination"
+              :loading="fetchingComments"
+              :authorized="authorized"
+            >
+            </article-comments>
+          </view>
         </scroll-view>
       </view>
+
+      <authorized-check :authorized="authorized">
+        <view class="form-wrap">
+          <textarea
+            class="textarea {{ systemInfo.platform }}__textarea"
+            placeholder="写评论..."
+            v-model="commentContent"
+            :auto-height="true"
+            :show-confirm-bar="false"
+            :focus="textareaFocus"
+            @focus="onTextareaFocus"
+          >
+          </textarea>
+          <view v-show="!textareaFocus" class="form-actions-wrap">
+            <view class="action message" @tap="anchorToggle">
+              <badge
+                v-if="article.cache.comments_count > 0"
+                extClass="badge"
+                :content="article.friendly_comments_count"
+              >
+              </badge>
+              <image src="../../../static/png/message_81x81.png"></image>
+            </view>
+            <view class="action">
+              <favorite-btn relation="article" :item="article"></favorite-btn>
+            </view>
+            <view class="action">
+              <like-btn relation="article" :item="article" :hideText="true"></like-btn>
+            </view>
+          </view>
+
+          <view v-show="textareaFocus" class="form-actions-wrap">
+            <view
+              class="action submit"
+              :class="{disabled: commentContent.length <= 0}"
+              @tap="submitComment"
+            >
+              发布
+            </view>
+          </view>
+        </view>
+      </authorized-check>
     </view>
   </view>
 </template>
@@ -31,47 +196,135 @@
 <script>
   import wepy from '@wepy/core';
   import { mapActions } from '@wepy/x';
+  import Debounce from 'lodash-decorators/debounce';
   import mapAuthState from '@/mixins/mapAuthState';
   import store from './vuex';
+
+  const defaultArticleQueryParams = {
+    include: 'tags',
+    htmltowxml: 1,
+  };
+
+  const defaultCommentsQueryParams = {
+    include: 'user',
+    parent_id: 0,
+    root_id: 0,
+    append: 'has_up_voted,has_down_voted',
+  };
+
+  const mapStateProps = ['article', 'comments', 'pagination', 'fetchingComments', 'submittingComment'];
 
   wepy.page({
     store,
 
     data: {
       id: 0,
+      systemInfo: {},
+      anchor: '',
+      textareaFocus: false,
+      commentContent: '',
+      scrollTop: 0,
     },
 
     mixins: [mapAuthState],
 
     computed: {
-      article () {
-        return this.$store.state.articleShow.article;
-      },
+      ...mapStateProps.reduce((res, prop) => {
+        res[prop] = function () {
+          return this.$store.state.articleShow[prop];
+        };
+        return res;
+      }, {}),
+
       articleLoaded () {
         return this.article.id === this.id;
+      },
+
+      noMoreComments () {
+        return (
+          this.pagination.last_page >= 1 &&
+          this.pagination.current_page >= this.pagination.last_page
+        );
       },
     },
 
     methods: {
       ...mapActions('articleShow', [
         'fetchArticle',
+        'fetchComments',
       ]),
+
+      @Debounce(200)
+      appendFetchComments () {
+        if (this.fetchingComments || this.noMoreComments) return;
+
+        this.$store.dispatch(
+          'articleShow/appendFetchComments',
+          { article_id: this.id, ...defaultCommentsQueryParams },
+        );
+      },
+
+      @Debounce(600)
+      async submitComment () {
+        if (this.commentContent.length <= 0 || this.submittingComment) return;
+
+        this.anchor = '';
+
+        await this.$store.dispatch('articleShow/submitComment', {
+          article_id: this.id,
+          content: { markdown: this.commentContent },
+          ...defaultCommentsQueryParams,
+        });
+
+        this.commentContent = '';
+        this.onTextareaBlur();
+
+        this.anchor = 'comments';
+
+        wx.showToast({
+          title: '评论成功！',
+          icon: 'none',
+        });
+      },
+
+      anchorToggle () {
+        this.anchor = this.anchor !== 'comments' ? 'comments' : 'content';
+      },
+
+      onTextareaFocus () {
+        this.textareaFocus = true;
+      },
+
+      onTextareaBlur () {
+        this.textareaFocus = false;
+      },
     },
 
-    watch: {
-      article () {
-      },
+    created () {
+      mapStateProps.map(k => {
+        this.$watch(k, () => {
+        });
+      });
+
+      this.systemInfo = wx.getSystemInfoSync();
     },
 
     onLoad ({ id }) {
       this.id = Number(id);
-      this.fetchArticle({ id, include: 'tags', htmltowxml: 1 });
+
+      this.$store.commit('articleShow/setArticle', {});
+      this.$store.commit('articleShow/COMMENTS_LOADING_HIDE');
+      this.$store.commit(
+        'articleShow/queryComments',
+        { comments: [], pagination: { current_page: 0 } },
+      );
+
+      this.fetchArticle({ id, ...defaultArticleQueryParams });
+      this.fetchComments({ article_id: id, ...defaultCommentsQueryParams });
     },
 
     onUnload () {
       this._watcher.teardown();
-
-      this.$store.commit('articleShow/setArticle', {});
     },
   });
 </script>
@@ -81,6 +334,12 @@
     usingComponents: {
       loading: '~@/components/weui/loading/loading',
       'article-content': './components/article-content',
+      'authorized-check': '~@/components/authorized-check',
+      'like-btn': '~@/components/buttons/like-btn',
+      'favorite-btn': '~@/components/buttons/favorite-btn',
+      'article-comments': './components/article-comments',
+      badge: '~@/components/weui/badge/badge',
     },
+    navigationBarTitleText: '文章详情',
   }
 </config>

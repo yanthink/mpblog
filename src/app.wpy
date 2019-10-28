@@ -3,6 +3,7 @@
 
   page {
     background-color: #F8F8F8;
+    -webkit-text-size-adjust: 100% !important;
   }
 
   .wx_loading_view {
@@ -53,8 +54,8 @@
 <config>
   {
     pages: [
-      'pages/account/center/index',
       'pages/articles/list/index',
+      'pages/account/center/index',
       'pages/articles/show/index',
       'pages/auth/scan-login',
     ],

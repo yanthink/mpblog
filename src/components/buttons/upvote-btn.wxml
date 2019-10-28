@@ -1,0 +1,10 @@
+<relation-btn relation="{{ relation }}" action="upvote" item="{{ item }}" bind:after-toggle="afterToggle">
+  <view class="btn upvote-btn" slot="on">
+    <image src="../../static/png/upvoted_81x81.png"></image>
+    <text>{{ item.cache.up_voters_count }}</text>
+  </view>
+  <view class="btn upvote-btn" slot="off">
+    <image src="../../static/png/upvote_81x81.png"></image>
+    <text>{{ item.cache.up_voters_count }}</text>
+  </view>
+</relation-btn>

@@ -62,7 +62,6 @@
 <script>
   import wepy from '@wepy/core';
   import { mapState } from '@wepy/x';
-  import unionBy from 'lodash/unionBy';
   import Debounce from 'lodash-decorators/debounce';
   import mapAuthState from '@/mixins/mapAuthState';
   import store from './vuex';
@@ -86,7 +85,7 @@
 
       // todo vuex getters 会报错，只能等官方修复了
       articles () {
-        return unionBy(this.list, 'id').map(article => {
+        return this.list.map(article => {
           const images = matchImages(article.content.markdown);
 
           if (images.length === 0 && article.preview) {

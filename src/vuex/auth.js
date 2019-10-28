@@ -87,8 +87,6 @@ export default {
     async setUser ({ commit }, user) {
       commit('setUser', user);
       commit('setUnreadCount', user.cache.unread_count);
-      commit('setUnreadCount', 100);
-
     },
 
     async checkUserToken ({ dispatch, state }) {

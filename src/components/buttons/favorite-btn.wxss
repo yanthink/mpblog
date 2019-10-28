@@ -1,0 +1,15 @@
+.btn {
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+}
+
+.btn image {
+  margin: 0 !important;
+  width: 16px;
+  height: 16px;
+}
+
+.btn text {
+  line-height: 1;
+}

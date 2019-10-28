@@ -1,0 +1,8 @@
+<relation-btn relation="{{ relation }}" action="favorite" item="{{ item }}" bind:after-toggle="afterToggle">
+  <view class="btn favorite-btn" slot="on">
+    <image src="../../static/png/favorited_81x81.png"></image>
+  </view>
+  <view class="btn like-btn" slot="off">
+    <image src="../../static/png/favorite_81x81.png"></image>
+  </view>
+</relation-btn>

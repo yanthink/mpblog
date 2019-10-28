@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "relation-btn": "relation-btn"
+  }
+}
