@@ -22,10 +22,7 @@ export default {
   },
 
   created () {
-    ['token', 'user', 'unreadCount'].map(k => {
-      this.$watch(k, () => {
-      });
-    });
+    ['token', 'user', 'unreadCount'].map(k => this.$watch(k, () => {}));
   },
 
   onUnload () {

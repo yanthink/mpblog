@@ -51,16 +51,20 @@
 }
 
 .html2wxml {
-    padding: 0 5px;
+    /*padding: 0 5px;*/
     font-family: inherit;
-    font-size: 32rpx;
-    color: #666;
+    /*font-size: 32rpx;*/
+    /*color: #666;*/
     line-height: 1.6;
 }
 
 .html2wxml view {
   word-break: break-all;
   overflow: auto;
+}
+
+.html2wxml image {
+  max-width: 100%;
 }
 
 .wxml-inline {
@@ -82,6 +86,10 @@
 
 .wxml-p {
     margin-bottom: 8px;
+}
+
+.wxml-p:last-child {
+  margin-bottom: 0;
 }
 
 .wxml-h1 {

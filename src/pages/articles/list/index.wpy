@@ -61,47 +61,26 @@
 
 <script>
   import wepy from '@wepy/core';
-  import { mapState } from '@wepy/x';
+  import unionBy from 'lodash/unionBy';
   import Debounce from 'lodash-decorators/debounce';
-  import mapAuthState from '@/mixins/mapAuthState';
-  import store from './vuex';
+  import * as services from './services';
   import { matchImages } from './utils';
 
   wepy.page({
-    store,
-
-    mixins: [mapAuthState],
-
     data: {
+      articles: [],
+      meta: {
+        current_page: 0,
+      },
+      loading: false,
       searchValue: '',
     },
 
     computed: {
-      ...mapState('articleList', [
-        'loading',
-        'list',
-        'pagination',
-      ]),
-
-      // todo vuex getters 会报错，只能等官方修复了
-      articles () {
-        return this.list.map(article => {
-          const images = matchImages(article.content.markdown);
-
-          if (images.length === 0 && article.preview) {
-            images.unshift(article.preview);
-          }
-
-          article.images = images.slice(0, 3);
-
-          return article;
-        });
-      },
-
       noMore () {
         return (
-          this.pagination.last_page >= 1 &&
-          this.pagination.current_page >= this.pagination.last_page
+          this.meta.current_page >= 1 &&
+          this.meta.current_page >= this.meta.last_page
         );
       },
     },
@@ -111,25 +90,46 @@
       async refreshList () {
         if (this.loading) return;
 
-        await this.$store.dispatch({
-          type: 'articleList/fetch',
-          payload: {
-            q: this.searchValue,
-          },
-        });
+        this.loading = true;
+
+        try {
+          const { data, meta } = await services.queryArticles({ q: this.searchValue });
+          this.articles = this.mapMatchImages(data);
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
 
         wx.stopPullDownRefresh();
       },
 
       @Debounce(200)
-      appendList () {
-        if (this.loading) return;
+      async appendList () {
+        this.loading = true;
 
-        this.$store.dispatch({
-          type: 'articleList/appendFetch',
-          payload: {
+        try {
+          const { data, meta } = await services.queryArticles({
             q: this.searchValue,
-          },
+            page: this.meta.current_page + 1,
+          });
+          const articles = this.mapMatchImages(data);
+          this.articles = unionBy(this.articles.concat(articles), 'id');
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      mapMatchImages (articles = []) {
+        return articles.map(article => {
+          const images = matchImages(article.content.markdown);
+
+          if (images.length === 0 && article.preview) {
+            images.unshift(article.preview);
+          }
+
+          article.images = images.slice(0, 3);
+          return article;
         });
       },
 

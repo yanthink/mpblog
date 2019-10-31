@@ -1,0 +1,182 @@
+<style lang="less">
+  .dot {
+    padding: 0 5px;
+
+    &::before {
+      content: "·";
+    }
+  }
+
+  .comment-inner {
+    padding: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .comment-avatar {
+    width: 50px;
+
+    image {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+    }
+  }
+
+  .comment-content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .comment-content-head {
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .comment-content-head-author {
+    color: #696969;
+    flex: 1;
+  }
+
+  .comment-content-head-vote {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .action {
+      margin-left: 8px;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+
+    .action text {
+      font-size: 12px;
+    }
+  }
+
+  .comment-content-body {
+    overflow-x: auto;
+
+    navigator {
+      color: #13C2C2;
+    }
+  }
+
+  .comment-content-foot {
+    font-size: 11px;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+  }
+
+  .comment-content-foot-time {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 12px;
+    align-items: center;
+  }
+
+  .comment-content-head, .comment-content-body {
+    margin-bottom: 6px;
+  }
+
+  .comment-content-foot-repay-count {
+    background-color: #f2f2f2;
+    padding: 2px 12px;
+    border-radius: 15px;
+  }
+
+  .comment_active {
+    background-color: #ECECEC;
+  }
+
+  .comment-content-body htmltowxml image {
+    max-width: calc(100vw - 66px);
+  }
+</style>
+
+<template>
+  <view class="comment" hover-class="comment_active" @tap="onTap">
+    <view class="comment-inner">
+      <view class="comment-avatar">
+        <image class="avatar" :src="comment.user.avatar"></image>
+      </view>
+      <view class="comment-content">
+        <view class="comment-content-head">
+          <view class="comment-content-head-author">{{comment.user.username}}</view>
+          <view class="comment-content-head-vote">
+            <view class="action">
+              <authorized-check :authorized="authorized">
+                <upvote-btn relation="comment" :item="comment"></upvote-btn>
+              </authorized-check>
+            </view>
+            <view class="action">
+              <authorized-check :authorized="authorized">
+                <downvote-btn relation="comment" :item="comment"></downvote-btn>
+              </authorized-check>
+            </view>
+          </view>
+        </view>
+        <view class="comment-content-body">
+          <htmltowxml
+            style="display: inline-block"
+            :json="comment.content.htmltowxml"
+            :padding="0"
+            showLoading="{{ false }}"
+            highlightStyle="darcula"
+          >
+          </htmltowxml>
+        </view>
+        <view class="comment-content-foot">
+          <view class="comment-content-foot-time">
+            {{ comment.created_at_timeago }}
+          </view>
+          <view class="dot"></view>
+          <view
+            :class="{'comment-content-foot-repay-count': !comment.root_id && comment.cache.comments_count > 0}"
+          >
+            {{!comment.root_id && comment.cache.comments_count > 0 ? comment.cache.comments_count : ''}}回复
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+
+  wepy.component({
+    props: {
+      comment: Object,
+      showParent: Boolean,
+      authorized: Boolean,
+    },
+
+    methods: {
+      onTap () {
+        this.$emit('comment-tap', this.comment);
+      },
+    },
+  });
+</script>
+
+<config>
+  {
+    usingComponents: {
+      htmltowxml: '~@/components/html2wxml/html2wxml',
+      'authorized-check': '~@/components/authorized-check',
+      'upvote-btn': '~@/components/buttons/upvote-btn',
+      'downvote-btn': '~@/components/buttons/downvote-btn',
+    },
+  }
+</config>

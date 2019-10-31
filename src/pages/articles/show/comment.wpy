@@ -16,109 +16,9 @@
     overflow: hidden;
   }
 
-  .weui-loading__wrp {
-    padding: 16px;
-    text-align: center;
-  }
-
-  .content {
-    .weui-article__head {
-      padding: 12px 12px 0 12px;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .weui-article__head .weui-article__h1 {
-      margin-bottom: 10px;
-      font-size: 20px;
-    }
-
-    .weui-article__head .weui-article__info {
-      padding-bottom: 10px;
-      font-size: 14px;
-      color: #cecece;
-      line-height: 1em;
-      list-style: none;
-      overflow: hidden;
-    }
-
-    .weui-article__head .weui-article__info__meta {
-      float: left;
-      padding-right: 1em;
-    }
-
-    .weui-article__head .weui-article__section {
-      margin-bottom: 1em;
-    }
-
-    .weui-article__section {
-      padding: 12px;
-      color: #595959;
-    }
-
-    .weui-article__section image {
-      margin: 4px 0;
-    }
-
-    .article-url {
-      margin-top: 20px;
-      background-color: #f2f2f2;
-      padding: 5px 10px;
-      font-size: 12px;
-      border-radius: 5px;
-    }
-
-    .tags-wrap {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
-      line-height: 1;
-    }
-
-    .tags-wrap .icon-tags {
-      margin-right: 8px;
-    }
-
-    .tags-wrap .icon-tags image {
-      width: 20px;
-      height: 20px;
-    }
-
-    .tags-wrap .tag {
-      border: 1px solid #ffd591;
-      border-radius: 4px;
-      font-size: 12px;
-      padding: 4px 8px;
-      margin-right: 4px;
-      color: #fa8c16;
-      background: #fff7e6;
-    }
-  }
-
-  .actions {
-    display: flex;
-    justify-content: center;
-    margin: 16px auto;
-
-    .action {
-      margin: 0 8px;
-    }
-  }
-
-  .actions image {
-    width: 40px !important;
-    height: 40px !important;
-  }
-
   .comments {
-    margin-top: 40px;
     border-top: 1px solid #d7d6dc;
-
-    .comments-head {
-      margin: 8px 0;
-      font-size: 14px;
-    }
+    padding-top: 8px;
   }
 
   .form-wrap {
@@ -187,8 +87,8 @@
 <template>
   <view class="page">
     <view class="page__bd">
-      <loading :show="fetchingArticle"></loading>
-      <view v-show="!fetchingArticle" class="content-wrap" @tap="onTextareaBlur">
+      <loading :show="fetchingComment"></loading>
+      <view v-show="!fetchingComment" class="content-wrap">
         <scroll-view
           style="height: 100%"
           :scroll-y="true"
@@ -199,56 +99,19 @@
           @scrolltolower="appendFetchComments"
         >
           <view class="content" id="content">
-            <view class="weui-article__head">
-              <view class="weui-article__h1">{{ article.title }}</view>
-              <view class="weui-article__info">
-                <view class="weui-article__info__meta">
-                  {{ article.friendly_views_count }} 阅读
-                </view>
-                <view class="weui-article__info__meta">{{ article.friendly_comments_count }} 评论</view>
-                <view class="weui-article__info__meta weui-media-box__info__meta_extra">
-                  {{ article.created_at_timeago }}
-                </view>
-              </view>
-            </view>
-            <view class="weui-article__section">
-              <htmltowxml
-                :json="article.content.htmltowxml"
-                :showLoading="false"
-                :padding="0"
-                highlightStyle="darcula"
-              >
-              </htmltowxml>
-              <view class="article-url">文章链接：{{ articleUrl }}</view>
-              <view class="tags-wrap">
-                <view class="icon-tags">
-                  <image src="../../../static/png/tags_81x81.png"></image>
-                </view>
-                <view v-for="tag in article.tags" class="tag">
-                  {{ tag.name }}
-                </view>
-              </view>
-            </view>
-          </view>
-
-          <view class="actions">
-            <view class="action">
-              <authorized-check :authorized="authorized">
-                <like-btn relation="article" :item="article"></like-btn>
-              </authorized-check>
-            </view>
-            <view class="action">
-              <authorized-check :authorized="authorized">
-                <favorite-btn relation="article" :item="article"></favorite-btn>
-              </authorized-check>
-            </view>
+            <comment
+              :comment="comment"
+              :authorized="authorized"
+              :id="'comment-'+comment.id"
+              @comment-tap="onCommentTap"
+            >
+            </comment>
           </view>
 
           <view class="comments" id="comments">
-            <view class="comments-head">{{ meta.total }} 评论</view>
             <comment
-              v-for="comment in comments"
-              :comment="comment"
+              v-for="item in comments"
+              :comment="item"
               :authorized="authorized"
               :id="'comment-'+comment.id"
               @comment-tap="onCommentTap"
@@ -266,7 +129,7 @@
         <view class="form-wrap">
           <textarea
             class="textarea {{ systemInfo.platform }}__textarea"
-            placeholder="写评论..."
+            :placeholder="!parent.id || parent.id === comment.id ? '写评论...': '@'+parent.user.username"
             v-model="commentContent"
             :auto-height="true"
             :show-confirm-bar="false"
@@ -275,20 +138,8 @@
           >
           </textarea>
           <view v-show="!textareaFocus" class="form-actions-wrap">
-            <view class="action message" @tap="anchorToggle">
-              <badge
-                v-if="article.cache.comments_count > 0"
-                extClass="badge"
-                :content="article.friendly_comments_count"
-              >
-              </badge>
+            <view class="action message">
               <image src="../../../static/png/message_81x81.png"></image>
-            </view>
-            <view class="action">
-              <favorite-btn relation="article" :item="article"></favorite-btn>
-            </view>
-            <view class="action">
-              <like-btn relation="article" :item="article" :hideText="true"></like-btn>
             </view>
           </view>
 
@@ -314,16 +165,14 @@
   import mapAuthState from '@/mixins/mapAuthState';
   import * as services from './services';
 
-  const defaultArticleQueryParams = {
-    include: 'tags',
+  const defaultCommentQueryParams = {
+    include: 'user',
     htmltowxml: 1,
-    htmltowxml_linenums: 1,
   };
 
   const defaultCommentsQueryParams = {
-    include: 'user',
-    root_id: 0,
-    htmltowxml: 1,
+    ...defaultCommentQueryParams,
+    include: 'user,parent.user',
   };
 
   wepy.page({
@@ -331,25 +180,23 @@
 
     data: {
       systemInfo: {},
-      id: 0,
-      article: {},
+      article_id: 0,
+      comment_id: 0,
+      comment: {},
       comments: [],
       meta: {
         current_page: 0,
       },
+      parent: {},
       commentContent: '',
       textareaFocus: false,
-      fetchingArticle: false,
+      fetchingComment: false,
       fetchingComments: false,
       submittingComment: false,
       anchor: '',
     },
 
     computed: {
-      articleUrl () {
-        return `https://www.einsition.com/articles/${this.article.id}`;
-      },
-
       noMoreComments () {
         return (
           this.meta.current_page >= 1 &&
@@ -359,13 +206,17 @@
     },
 
     methods: {
-      async fetchArticle () {
-        this.fetchingArticle = true;
+      async fetchComment () {
+        this.fetchingComment = true;
         try {
-          const { data: article } = await services.queryArticle(this.id, defaultArticleQueryParams);
-          this.article = article;
+          const { data: comment } = await services.queryArticleComment(
+            this.article_id,
+            this.comment_id,
+            defaultCommentQueryParams,
+          );
+          this.comment = comment;
         } finally {
-          this.fetchingArticle = false;
+          this.fetchingComment = false;
         }
       },
 
@@ -373,7 +224,10 @@
         this.fetchingComments = true;
 
         try {
-          const { data: comments, meta } = await services.queryArticleComments(this.id, defaultCommentsQueryParams);
+          const { data: comments, meta } = await services.queryArticleComments(this.article_id, {
+            ...defaultCommentsQueryParams,
+            root_id: this.comment_id,
+          });
           this.comments = comments;
           this.meta = meta;
         } finally {
@@ -390,6 +244,7 @@
         try {
           const { data: comments, meta } = await services.queryArticleComments(this.id, {
             ...defaultCommentsQueryParams,
+            root_id: this.comment_id,
             page: this.meta.current_page + 1,
           });
           this.comments = unionBy(this.comments.concat(comments), 'id');
@@ -405,8 +260,9 @@
         this.submittingComment = true;
 
         try {
-          const { data: comment } = await services.postArticleComment(this.id, {
+          const { data: comment } = await services.postArticleComment(this.article_id, {
             ...defaultCommentsQueryParams,
+            parent_id: this.parent.id || this.comment.id,
             content: { markdown: this.commentContent },
           });
           this.comments = [comment].concat(this.comments);
@@ -426,7 +282,13 @@
       },
 
       onCommentTap (comment) {
-        wx.navigateTo({ url: `/pages/articles/show/comment?article_id=${this.id}&comment_id=${comment.id}` });
+        if (this.textareaFocus) {
+          this.parent = this.comment;
+          this.onTextareaBlur();
+          return;
+        }
+        this.parent = comment;
+        this.onTextareaFocus();
       },
 
       anchorToggle () {
@@ -446,10 +308,11 @@
       this.systemInfo = wx.getSystemInfoSync();
     },
 
-    onLoad ({ id }) {
-      this.id = Number(id);
+    onLoad ({ article_id, comment_id }) {
+      this.article_id = Number(article_id);
+      this.comment_id = Number(comment_id);
 
-      this.fetchArticle();
+      this.fetchComment();
       this.fetchComments();
     },
   });
@@ -459,13 +322,8 @@
   {
     usingComponents: {
       loading: '~@/components/weui/loading/loading',
-      htmltowxml: '~@/components/html2wxml/html2wxml',
-      'authorized-check': '~@/components/authorized-check',
-      'like-btn': '~@/components/buttons/like-btn',
-      'favorite-btn': '~@/components/buttons/favorite-btn',
       comment: '~@/components/comment',
-      badge: '~@/components/weui/badge/badge',
     },
-    navigationBarTitleText: '文章详情',
+    navigationBarTitleText: '评论详情',
   }
 </config>

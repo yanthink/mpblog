@@ -57,6 +57,7 @@
       'pages/articles/list/index',
       'pages/account/center/index',
       'pages/articles/show/index',
+      'pages/articles/show/comment',
       'pages/auth/scan-login',
     ],
     window: {
