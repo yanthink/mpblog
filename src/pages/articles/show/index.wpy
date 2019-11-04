@@ -116,9 +116,13 @@
     border-top: 1px solid #d7d6dc;
 
     .comments-head {
-      margin: 8px 0;
+      margin: 8px 12px;
       font-size: 14px;
     }
+  }
+
+  .top-comment {
+    background-color: #fffbe6;
   }
 
   .form-wrap {
@@ -188,7 +192,7 @@
   <view class="page">
     <view class="page__bd">
       <loading :show="fetchingArticle"></loading>
-      <view v-show="!fetchingArticle" class="content-wrap" @tap="onTextareaBlur">
+      <view class="content-wrap" @tap="onTextareaBlur">
         <scroll-view
           style="height: 100%"
           :scroll-y="true"
@@ -219,7 +223,9 @@
                 highlightStyle="darcula"
               >
               </htmltowxml>
-              <view class="article-url">文章链接：{{ articleUrl }}</view>
+              <view class="article-url">文章链接：
+                <navigator>https://www.einsition.com/articles/{{ id }}</navigator>
+              </view>
               <view class="tags-wrap">
                 <view class="icon-tags">
                   <image src="../../../static/png/tags_81x81.png"></image>
@@ -246,14 +252,18 @@
 
           <view class="comments" id="comments">
             <view class="comments-head">{{ meta.total }} 评论</view>
-            <comment
+            <view
               v-for="comment in comments"
-              :comment="comment"
-              :authorized="authorized"
+              :class="{ 'top-comment': comment.id === top_comment }"
               :id="'comment-'+comment.id"
-              @comment-tap="onCommentTap"
             >
-            </comment>
+              <comment
+                :comment="comment"
+                :authorized="authorized"
+                @comment-tap="onCommentTap"
+              >
+              </comment>
+            </view>
             <loading :show="fetchingComments"></loading>
             <view v-show="noMoreComments" class="weui-loadmore weui-loadmore_line">
               <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
@@ -343,6 +353,7 @@
       fetchingComments: false,
       submittingComment: false,
       anchor: '',
+      top_comment: 0,
     },
 
     computed: {
@@ -373,7 +384,15 @@
         this.fetchingComments = true;
 
         try {
-          const { data: comments, meta } = await services.queryArticleComments(this.id, defaultCommentsQueryParams);
+          const params = {
+            ...defaultCommentsQueryParams,
+          };
+
+          if (this.top_comment) {
+            params.top_comment = this.top_comment;
+          }
+
+          const { data: comments, meta } = await services.queryArticleComments(this.id, params);
           this.comments = comments;
           this.meta = meta;
         } finally {
@@ -446,11 +465,19 @@
       this.systemInfo = wx.getSystemInfoSync();
     },
 
-    onLoad ({ id }) {
+    async onLoad ({ id, top_comment = 0 }) {
       this.id = Number(id);
+      this.top_comment = Number(top_comment);
 
-      this.fetchArticle();
-      this.fetchComments();
+      const fetchArticlePromise = this.fetchArticle();
+      const fetchCommentsPromise = this.fetchComments();
+
+      await fetchArticlePromise;
+      await fetchCommentsPromise;
+
+      if (top_comment) {
+        setTimeout(() => this.anchor = `comment-${top_comment}`, 0);
+      }
     },
   });
 </script>

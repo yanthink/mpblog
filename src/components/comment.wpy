@@ -95,17 +95,17 @@
     border-radius: 15px;
   }
 
-  .comment_active {
+  .comment-active {
     background-color: #ECECEC;
   }
 
   .comment-content-body htmltowxml image {
-    max-width: calc(100vw - 66px);
+    max-width: calc(100vw - 74px);
   }
 </style>
 
 <template>
-  <view class="comment" hover-class="comment_active" @tap="onTap">
+  <view class="comment" hover-class="comment-active" @tap="onTap">
     <view class="comment-inner">
       <view class="comment-avatar">
         <image class="avatar" :src="comment.user.avatar"></image>
@@ -135,6 +135,7 @@
             highlightStyle="darcula"
           >
           </htmltowxml>
+          <slot name="commentable"></slot>
         </view>
         <view class="comment-content-foot">
           <view class="comment-content-foot-time">
@@ -142,7 +143,7 @@
           </view>
           <view class="dot"></view>
           <view
-            :class="{'comment-content-foot-repay-count': !comment.root_id && comment.cache.comments_count > 0}"
+            :class="{'comment-content-foot-repay-count': !hideReplyCountClass && !comment.root_id && comment.cache.comments_count > 0}"
           >
             {{!comment.root_id && comment.cache.comments_count > 0 ? comment.cache.comments_count : ''}}回复
           </view>
@@ -156,10 +157,14 @@
   import wepy from '@wepy/core';
 
   wepy.component({
+    options: {
+      multipleSlots: true,
+    },
+
     props: {
       comment: Object,
-      showParent: Boolean,
       authorized: Boolean,
+      hideReplyCountClass: Boolean,
     },
 
     methods: {

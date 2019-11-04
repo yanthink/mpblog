@@ -63,10 +63,14 @@
   import wepy from '@wepy/core';
   import unionBy from 'lodash/unionBy';
   import Debounce from 'lodash-decorators/debounce';
+  import mapAuthState from '@/mixins/mapAuthState';
+  import { matchImages } from '@/utils/utils';
   import * as services from './services';
-  import { matchImages } from './utils';
 
   wepy.page({
+
+    mixins: [mapAuthState],
+
     data: {
       articles: [],
       meta: {

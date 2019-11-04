@@ -1,0 +1,74 @@
+<style lang="less">
+  .notification {
+    .liked {
+      width: 24px;
+      height: 24px;
+    }
+  }
+</style>
+
+<template>
+  <view class="notification" @tap="onTap">
+    <view class="notification-inner">
+      <view class="notification-avatar">
+        <image class="avatar" :src="notification.data.avatar"></image>
+      </view>
+      <view class="notification-content">
+        <view class="username">
+          {{notification.data.username}}
+        </view>
+        <view class="content">
+          <image class="liked" src="../../../../static/png/liked_81x81.png"></image>
+        </view>
+        <view class="timeago">
+          {{notification.created_at_timeago}}
+        </view>
+      </view>
+      <view class="notification-source">
+        {{notification.data.content}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+
+  wepy.component({
+    options: {
+      addGlobalClass: true,
+    },
+
+    props: {
+      notification: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    methods: {
+      onTap () {
+        let page = '';
+        let params = {};
+
+        if (!this.notification.data.root_id) {
+          page = '/pages/articles/show/index';
+          params = {
+            id: this.notification.data.commentable_id,
+            top_comment: this.notification.data.comment_id,
+          };
+        } else {
+          page = '/pages/articles/show/comment';
+          params = {
+            article_id: this.notification.data.commentable_id,
+            comment_id: this.notification.data.root_id,
+            top_comment: this.notification.data.comment_id,
+            with_commentable: 1,
+          };
+        }
+
+        wx.navigateTo({ url: `${page}?${stringify(params)}` });
+      },
+    },
+  });
+</script>

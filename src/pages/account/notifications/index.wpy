@@ -1,0 +1,211 @@
+<style lang="less">
+  .weui-media-box:before {
+    left: 16px;
+  }
+
+  .notifications {
+    .unread {
+      background-color: #fffbe6;
+    }
+
+    .notification-active {
+      background-color: #ECECEC;
+    }
+
+    .notification-inner {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notification-avatar {
+      width: 50px;
+    }
+
+    .avatar {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+      padding-right: 8px;
+    }
+
+    .username {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .content {
+      margin: 5px 0;
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .timeago {
+      font-size: 13px;
+      color: #cecece;
+    }
+
+    .notification-source {
+      width: 90px;
+      height: 68px;
+      font-size: 13px;
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-height: 1.4;
+    }
+  }
+</style>
+
+<template>
+  <view class="page">
+    <view class="page__bd">
+      <view class="weui-panel weui-panel_access">
+        <view class="scroll-view">
+          <view class="weui-panel__bd notifications">
+            <view
+              v-for="notification in notifications"
+              class="weui-media-box weui-media-box_text"
+              :class="{ unread: !notification.read_at }"
+              hover-class="notification-active"
+            >
+              <comment-my-article
+                v-if="notification.type === 'App\\Notifications\\CommentMyArticle'"
+                :notification="notification"
+              >
+              </comment-my-article>
+              <liked-my-article
+                v-if="notification.type === 'App\\Notifications\\LikedMyArticle'"
+                :notification="notification"
+              >
+              </liked-my-article>
+              <mentioned-me
+                v-if="notification.type === 'App\\Notifications\\MentionedMe'"
+                :notification="notification"
+              >
+              </mentioned-me>
+              <reply-my-comment
+                v-if="notification.type === 'App\\Notifications\\ReplyMyComment'"
+                :notification="notification"
+              >
+              </reply-my-comment>
+              <up-voted-my-comment
+                v-if="notification.type === 'App\\Notifications\\UpVotedMyComment'"
+                :notification="notification"
+              >
+              </up-voted-my-comment>
+            </view>
+          </view>
+          <loading :show="loading"></loading>
+          <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import unionBy from 'lodash/unionBy';
+  import Debounce from 'lodash-decorators/debounce';
+  import * as services from './services';
+
+  const defaultQueryParams = {};
+
+  wepy.page({
+    data: {
+      notifications: [],
+      meta: {
+        current_page: 0,
+      },
+      loading: false,
+    },
+
+    computed: {
+      noMore () {
+        return (
+          this.meta.current_page >= 1 &&
+          this.meta.current_page >= this.meta.last_page
+        );
+      },
+    },
+
+    methods: {
+      @Debounce(200)
+      async fetchNotifications () {
+        this.loading = true;
+
+        try {
+          const { data: notifications, meta } = await services.queryNotifications(defaultQueryParams);
+          this.notifications = notifications;
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+
+        wx.stopPullDownRefresh();
+      },
+
+      @Debounce(200)
+      async appendFetchNotifications () {
+        if (this.loading || this.noMore) return;
+
+        this.loading = true;
+
+        try {
+          const { data: notifications, meta } = await services.queryNotifications({
+            ...defaultQueryParams,
+            page: this.meta.current_page + 1,
+          });
+          this.notifications = unionBy(this.notifications.concat(notifications), 'id');
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+      },
+    },
+
+    created () {
+      this.fetchNotifications();
+    },
+
+    onPullDownRefresh () {
+      this.fetchNotifications();
+    },
+
+    onReachBottom () {
+      if (this.noMore) return;
+
+      this.appendFetchNotifications();
+    },
+  });
+</script>
+
+<config>
+  {
+    backgroundTextStyle: 'dark',
+    enablePullDownRefresh: true,
+    navigationBarTitleText: '我的通知',
+    usingComponents: {
+      loading: '~@/components/weui/loading/loading',
+      'comment-my-article': './components/comment-my-article',
+      'liked-my-article': './components/liked-my-article',
+      'mentioned-me': './components/mentioned-me',
+      'reply-my-comment': './components/reply-my-comment',
+      'up-voted-my-comment': './components/up-voted-my-comment',
+    },
+  }
+</config>

@@ -72,7 +72,7 @@
           </cells>
 
           <cells ext-class="menu">
-            <cell :link="true" :hover="true">
+            <cell :link="true" url="/pages/account/notifications/index" :hover="true">
               <view>消息通知</view>
               <view v-show="unreadCount" slot="footer" style="line-height: 1">
                 <badge :content="unreadCount > 99 ? '99+' : unreadCount"></badge>

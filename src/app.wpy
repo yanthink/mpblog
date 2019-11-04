@@ -58,6 +58,7 @@
       'pages/account/center/index',
       'pages/articles/show/index',
       'pages/articles/show/comment',
+      'pages/account/notifications/index',
       'pages/auth/scan-login',
     ],
     window: {

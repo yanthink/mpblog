@@ -1,0 +1,52 @@
+<template>
+  <view class="notification" @tap="onTap">
+    <view class="notification-inner">
+      <view class="notification-avatar">
+        <image class="avatar" :src="notification.data.avatar"></image>
+      </view>
+      <view class="notification-content">
+        <view class="username">
+          {{notification.data.username}}
+        </view>
+        <view class="content">
+          {{notification.data.content}}
+        </view>
+        <view class="timeago">
+          {{notification.created_at_timeago}}
+        </view>
+      </view>
+      <view class="notification-source">
+        {{notification.data.article_title}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import stringify from 'qs/lib/stringify';
+
+  wepy.component({
+    options: {
+      addGlobalClass: true,
+    },
+
+    props: {
+      notification: {
+        type: Object,
+        required: true,
+      },
+    },
+
+    methods: {
+      onTap () {
+        const params = {
+          id: this.notification.data.article_id,
+          top_comment: this.notification.data.comment_id,
+        };
+
+        wx.navigateTo({ url: `/pages/articles/show/index?${stringify(params)}` });
+      },
+    },
+  });
+</script>

@@ -20,7 +20,7 @@
 </template>
 
 <template name="wxmlImg">
-    <image class="{{item.attr.class}} wxml-img" data-src="{{item.attr.src}}" src="{{item.attr.src}}" data-idx="{{item.idx}}" bindload="wxmlImgLoad" bindtap="wxmlImgTap" mode="widthFix" style="width:{{images[item.idx].width}}px;" />
+    <image class="{{item.attr.class}} wxml-img" data-src="{{item.attr.src}}" src="{{item.attr.src}}" data-idx="{{item.idx}}" bindload="wxmlImgLoad" catchtap="wxmlImgTap" mode="widthFix" style="width:{{images[item.idx].width}}px;" />
 </template>
 
 <template name="wxmlLiType">
@@ -84,7 +84,7 @@
     </block>
     <!-- a类型 -->
     <block wx:elif="{{item.tag == 'a'}}">
-        <view bindtap="wxmlTagATap" class="wxml-inline {{item.attr.class}} wxml-a" data-src="{{item.attr.href}}" style="{{item.attr.style}}">
+        <view catchtap="wxmlTagATap" class="wxml-inline {{item.attr.class}} wxml-a" data-src="{{item.attr.href}}" style="{{item.attr.style}}">
             <block wx:for="{{item.nodes}}" wx:key="">
                 <template is="wxml1" data="{{images:images, item:item}}" />
             </block>

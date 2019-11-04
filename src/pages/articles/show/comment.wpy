@@ -11,6 +11,46 @@
     justify-content: space-between;
   }
 
+  .commentable {
+    navigator {
+      color: #595959 !important;
+      background-color: #f2f2f2;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .commentable-title {
+      font-size: 14px;
+      flex: 1;
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.4;
+    }
+
+    .commentable-thumb {
+      padding: 6px;
+    }
+
+    .commentable-thumb, .commentable-thumb image {
+      width: 55px;
+      height: 40px;
+    }
+
+    .commentable-thumb-default, .commentable-thumb-default image {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  .top-comment {
+    background-color: #fffbe6;
+  }
+
   .content-wrap {
     flex: 1;
     overflow: hidden;
@@ -18,7 +58,7 @@
 
   .comments {
     border-top: 1px solid #d7d6dc;
-    padding-top: 8px;
+    /*padding-top: 8px;*/
   }
 
   .form-wrap {
@@ -103,22 +143,38 @@
               :comment="comment"
               :authorized="authorized"
               :id="'comment-'+comment.id"
+              :hideReplyCountClass="true"
               @comment-tap="onCommentTap"
             >
+              <view v-if="comment.commentable" slot="commentable" class="commentable">
+                <navigator url="index?id={{comment.commentable_id}}">
+                  <view v-if="comment.commentable.images.length > 0" class="commentable-thumb">
+                    <image src="{{comment.commentable.images[0]}}"></image>
+                  </view>
+                  <view v-else class="commentable-thumb-default">
+                    <image src="../../../static/png/article_80x80.png" />
+                  </view>
+                  <view class="commentable-title">{{comment.commentable.title}}</view>
+                </navigator>
+              </view>
             </comment>
           </view>
 
           <view class="comments" id="comments">
-            <comment
+            <view
               v-for="item in comments"
-              :comment="item"
-              :authorized="authorized"
-              :id="'comment-'+comment.id"
-              @comment-tap="onCommentTap"
+              :class="{ 'top-comment': item.id === top_comment }"
+              :id="'comment-'+item.id"
             >
-            </comment>
-            <loading :show="fetchingComments"></loading>
-            <view v-show="noMoreComments" class="weui-loadmore weui-loadmore_line">
+              <comment
+                :comment="item"
+                :authorized="authorized"
+                @comment-tap="onCommentTap"
+              >
+              </comment>
+            </view>
+            <loading :show="loading"></loading>
+            <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
               <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
             </view>
           </view>
@@ -163,6 +219,7 @@
   import unionBy from 'lodash/unionBy';
   import Debounce from 'lodash-decorators/debounce';
   import mapAuthState from '@/mixins/mapAuthState';
+  import { matchImages } from '@/utils/utils';
   import * as services from './services';
 
   const defaultCommentQueryParams = {
@@ -191,13 +248,14 @@
       commentContent: '',
       textareaFocus: false,
       fetchingComment: false,
-      fetchingComments: false,
+      loading: false,
       submittingComment: false,
       anchor: '',
+      top_comment: 0,
     },
 
     computed: {
-      noMoreComments () {
+      noMore () {
         return (
           this.meta.current_page >= 1 &&
           this.meta.current_page >= this.meta.last_page
@@ -206,14 +264,19 @@
     },
 
     methods: {
-      async fetchComment () {
+      async fetchComment (params) {
         this.fetchingComment = true;
         try {
           const { data: comment } = await services.queryArticleComment(
             this.article_id,
             this.comment_id,
-            defaultCommentQueryParams,
+            { ...defaultCommentQueryParams, ...params },
           );
+
+          if (comment.commentable) {
+            comment.commentable = this.mapMatchImages(comment.commentable);
+          }
+
           this.comment = comment;
         } finally {
           this.fetchingComment = false;
@@ -221,25 +284,31 @@
       },
 
       async fetchComments () {
-        this.fetchingComments = true;
+        this.loading = true;
 
         try {
-          const { data: comments, meta } = await services.queryArticleComments(this.article_id, {
+          const params = {
             ...defaultCommentsQueryParams,
             root_id: this.comment_id,
-          });
+          };
+
+          if (this.top_comment) {
+            params.top_comment = this.top_comment;
+          }
+
+          const { data: comments, meta } = await services.queryArticleComments(this.article_id, params);
           this.comments = comments;
           this.meta = meta;
         } finally {
-          this.fetchingComments = false;
+          this.loading = false;
         }
       },
 
       @Debounce(200)
       async appendFetchComments () {
-        if (this.fetchingComments || this.noMoreComments) return;
+        if (this.loading || this.noMore) return;
 
-        this.fetchingComments = true;
+        this.loading = true;
 
         try {
           const { data: comments, meta } = await services.queryArticleComments(this.id, {
@@ -250,7 +319,7 @@
           this.comments = unionBy(this.comments.concat(comments), 'id');
           this.meta = meta;
         } finally {
-          this.fetchingComments = false;
+          this.loading = false;
         }
       },
 
@@ -281,6 +350,17 @@
         }
       },
 
+      mapMatchImages (commentable = {}) {
+        const images = matchImages(commentable.content.markdown);
+
+        if (images.length === 0 && commentable.preview) {
+          images.unshift(commentable.preview);
+        }
+
+        commentable.images = images.slice(0, 1);
+        return commentable;
+      },
+
       onCommentTap (comment) {
         if (this.textareaFocus) {
           this.parent = this.comment;
@@ -308,12 +388,25 @@
       this.systemInfo = wx.getSystemInfoSync();
     },
 
-    onLoad ({ article_id, comment_id }) {
+    async onLoad ({ article_id, comment_id, with_commentable, top_comment = 0 }) {
       this.article_id = Number(article_id);
       this.comment_id = Number(comment_id);
+      this.top_comment = Number(top_comment);
 
-      this.fetchComment();
-      this.fetchComments();
+      const fetchCommentParams = { include: defaultCommentQueryParams.include };
+      if (with_commentable) {
+        fetchCommentParams.include += ',commentable';
+      }
+
+      const fetchCommentPromise = this.fetchComment(fetchCommentParams);
+      const fetchCommentsPromise = this.fetchComments();
+
+      await fetchCommentPromise;
+      await fetchCommentsPromise;
+
+      if (top_comment) {
+        setTimeout(() => this.anchor = `comment-${top_comment}`, 0);
+      }
     },
   });
 </script>
