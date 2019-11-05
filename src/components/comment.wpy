@@ -128,7 +128,6 @@
         </view>
         <view class="comment-content-body">
           <htmltowxml
-            style="display: inline-block"
             :json="comment.content.htmltowxml"
             :padding="0"
             showLoading="{{ false }}"

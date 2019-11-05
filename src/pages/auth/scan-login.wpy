@@ -71,6 +71,10 @@
     onLoad (query) {
       this.uuid = decodeURIComponent(query.scene);
     },
+
+    onUnload () {
+      this._watcher.teardown();
+    },
   });
 </script>
 

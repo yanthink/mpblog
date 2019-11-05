@@ -479,6 +479,10 @@
         setTimeout(() => this.anchor = `comment-${top_comment}`, 0);
       }
     },
+
+    onUnload () {
+      this._watcher.teardown();
+    },
   });
 </script>
 

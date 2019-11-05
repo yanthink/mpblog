@@ -191,6 +191,10 @@
 
       this.appendFetchNotifications();
     },
+
+    onUnload () {
+      this._watcher.teardown();
+    },
   });
 </script>
 

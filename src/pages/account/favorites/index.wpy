@@ -1,0 +1,172 @@
+<style lang="less">
+  .weui-panel__bd {
+    background: white;
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+  }
+
+  .weui-panel__hd {
+    padding: 12px 16px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, .6);
+
+    &:after {
+      left: 0;
+    }
+  }
+</style>
+
+<template>
+  <view class="page">
+    <view class="page__bd">
+      <view class="weui-panel weui-panel_access">
+        <view class="scroll-view">
+          <view class="weui-panel__bd">
+            <block v-for="favorite in favorites">
+              <navigator
+                v-if="favorite.followable_type === 'App\\Models\\Article' && favorite.followable"
+                url="/pages/articles/show/index?id={{favorite.followable_id}}"
+                hover-class="weui-cell_active"
+              >
+                <list-item v-if="favorite.followable.images.length === 0" :article="favorite.followable">
+                </list-item>
+                <list-item1 v-else-if="favorite.followable.images.length === 1" :article="favorite.followable">
+                </list-item1>
+                <list-item2 v-else :article="favorite.followable">
+                </list-item2>
+              </navigator>
+            </block>
+          </view>
+          <loading :show="loading"></loading>
+          <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import unionBy from 'lodash/unionBy';
+  import Debounce from 'lodash-decorators/debounce';
+  import { matchImages } from '@/utils/utils';
+  import * as services from './services';
+
+  const defaultQueryParams = { include: 'followable' };
+
+  wepy.page({
+    data: {
+      favorites: [],
+      meta: {
+        current_page: 0,
+      },
+      loading: false,
+    },
+
+    computed: {
+      noMore () {
+        return (
+          this.meta.current_page >= 1 &&
+          this.meta.current_page >= this.meta.last_page
+        );
+      },
+    },
+
+    methods: {
+      @Debounce(200)
+      async fetchFavorites () {
+        this.loading = true;
+
+        try {
+          const { data: favorites, meta } = await services.queryFollowRelations({
+            ...defaultQueryParams,
+            relation: 'favorite',
+          });
+
+          favorites
+            .filter(favorite => favorite.followable_type === 'App\\Models\\Article')
+            .forEach(favorite => this.mapMatchImages(favorite.followable));
+
+          this.favorites = favorites;
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+
+        wx.stopPullDownRefresh();
+      },
+
+      @Debounce(200)
+      async appendFetchFavorites () {
+        if (this.loading || this.noMore) return;
+
+        this.loading = true;
+
+        try {
+          const { data: favorites, meta } = await services.queryFollowRelations({
+            ...defaultQueryParams,
+            relation: 'favorite',
+            page: this.meta.current_page + 1,
+          });
+
+          favorites
+            .filter(favorite => favorite.followable_type === 'App\\Models\\Article')
+            .forEach(favorite => this.mapMatchImages(favorite.followable));
+
+          this.favorites = unionBy(this.favorites.concat(favorites), (item) => {
+            return `${item.followable_type}.${item.followable_id}`;
+          });
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      mapMatchImages (article) {
+        if (!article) return;
+
+        const images = matchImages(article.content.markdown);
+
+        if (images.length === 0 && article.preview) {
+          images.unshift(article.preview);
+        }
+
+        article.images = images.slice(0, 3);
+        return article;
+      },
+    },
+
+    created () {
+      this.fetchFavorites();
+    },
+
+    onPullDownRefresh () {
+      this.appendFetchFavorites();
+    },
+
+    onReachBottom () {
+      if (this.noMore) return;
+
+      this.appendFetchFavorites();
+    },
+
+    onUnload () {
+      this._watcher.teardown();
+    },
+  });
+</script>
+
+<config>
+  {
+    backgroundTextStyle: 'dark',
+    enablePullDownRefresh: true,
+    navigationBarTitleText: '我的收藏',
+    usingComponents: {
+      loading: '~@/components/weui/loading/loading',
+      'list-item': '~@/pages/articles/list/components/list-item',
+      'list-item1': '~@/pages/articles/list/components/list-item1',
+      'list-item2': '~@/pages/articles/list/components/list-item2',
+    },
+  }
+</config>

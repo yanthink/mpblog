@@ -1,0 +1,245 @@
+<style lang="less">
+  .weui-panel {
+    background-color: transparent;
+  }
+
+  .comment-item {
+    background-color: #fff;
+    margin-bottom: 8px;
+    padding: 12px;
+  }
+
+  .commentable {
+    color: #595959 !important;
+    background-color: #f2f2f2;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px;
+    margin: 8px 0;
+
+    .commentable-title {
+      font-size: 14px;
+      flex: 1;
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.4;
+    }
+
+    .commentable-thumb, .commentable-thumb image {
+      width: 55px;
+      height: 40px;
+    }
+
+    .commentable-thumb-default, .commentable-thumb-default image {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  .info__meta {
+    text {
+      color: #cecece;
+      margin-right: 8px;
+      font-size: 13px;
+    }
+  }
+</style>
+
+<template>
+  <view class="page">
+    <view class="page__bd">
+      <view class="weui-panel weui-panel_access">
+        <view class="scroll-view">
+          <view class="weui-panel__bd">
+            <view
+              v-for="comment in comments"
+              class="comment-item"
+              hover-class="weui-cell_active"
+              @tap="onTap(comment)"
+            >
+              <block v-if="comment.commentable_type === 'App\\Models\\Article' && comment.commentable">
+                <htmltowxml
+                  :json="comment.content.htmltowxml"
+                  :padding="0"
+                  showLoading="{{ false }}"
+                  highlightStyle="darcula"
+                >
+                </htmltowxml>
+                <view class="commentable">
+                  <view class="commentable-title">{{comment.commentable.title}}</view>
+                  <view v-if="comment.commentable.images.length > 0" class="commentable-thumb">
+                    <image src="{{comment.commentable.images[0]}}"></image>
+                  </view>
+                  <view v-else class="commentable-thumb-default">
+                    <image src="../../../static/png/article_80x80.png" />
+                  </view>
+                </view>
+                <view class="info__meta">
+                  <text>{{comment.friendly_up_voters_count}}点赞</text>
+                  <text>{{comment.created_at_timeago}}</text>
+                </view>
+              </block>
+            </view>
+          </view>
+
+          <loading :show="loading"></loading>
+          <view v-show="noMore" class="weui-loadmore weui-loadmore_line">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">加载完毕</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import unionBy from 'lodash/unionBy';
+  import Debounce from 'lodash-decorators/debounce';
+  import stringify from 'qs/lib/stringify';
+  import { matchImages } from '@/utils/utils';
+  import * as services from './services';
+
+  const defaultQueryParams = { include: 'commentable,parent.user', htmltowxml: 1 };
+
+  wepy.page({
+    data: {
+      comments: [],
+      meta: {
+        current_page: 0,
+      },
+      loading: false,
+    },
+
+    computed: {
+      noMore () {
+        return (
+          this.meta.current_page >= 1 &&
+          this.meta.current_page >= this.meta.last_page
+        );
+      },
+    },
+
+    methods: {
+      @Debounce(200)
+      async fetchComments () {
+        this.loading = true;
+
+        try {
+          const { data: comments, meta } = await services.queryComments({
+            ...defaultQueryParams,
+          });
+
+          comments
+            .filter(comment => comment.commentable_type === 'App\\Models\\Article')
+            .forEach(comment => this.mapMatchImages(comment.commentable));
+
+          this.comments = comments;
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+
+        wx.stopPullDownRefresh();
+      },
+
+      @Debounce(200)
+      async appendFetchComments () {
+        if (this.loading || this.noMore) return;
+
+        this.loading = true;
+
+        try {
+          const { data: comments, meta } = await services.queryComments({
+            ...defaultQueryParams,
+            page: this.meta.current_page + 1,
+          });
+
+          comments
+            .filter(comment => comment.commentable_type === 'App\\Models\\Article')
+            .forEach(comment => this.mapMatchImages(comment.commentable));
+
+          this.comments = unionBy(this.comments.concat(comments), 'id');
+          this.meta = meta;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      mapMatchImages (article) {
+        if (!article) return;
+
+        const images = matchImages(article.content.markdown);
+
+        if (images.length === 0 && article.preview) {
+          images.unshift(article.preview);
+        }
+
+        article.images = images.slice(0, 3);
+        return article;
+      },
+
+      onTap (comment) {
+        switch (comment.commentable_type) {
+          case 'App\\Models\\Article':
+            let page = '';
+            let params = {};
+
+            if (!comment.root_id) {
+              page = '/pages/articles/show/index';
+              params = {
+                id: comment.commentable_id,
+                top_comment: comment.id,
+              };
+            } else {
+              page = '/pages/articles/show/comment';
+              params = {
+                article_id: comment.commentable_id,
+                comment_id: comment.root_id,
+                top_comment: comment.id,
+                with_commentable: 1,
+              };
+            }
+
+            wx.navigateTo({ url: `${page}?${stringify(params)}` });
+            break
+        }
+      },
+    },
+
+    created () {
+      this.fetchComments();
+    },
+
+    onPullDownRefresh () {
+      this.appendFetchComments();
+    },
+
+    onReachBottom () {
+      if (this.noMore) return;
+
+      this.appendFetchComments();
+    },
+
+    onUnload () {
+      this._watcher.teardown();
+    },
+  });
+</script>
+
+<config>
+  {
+    backgroundTextStyle: 'dark',
+    enablePullDownRefresh: true,
+    navigationBarTitleText: '我的评论',
+    usingComponents: {
+      htmltowxml: '~@/components/html2wxml/html2wxml',
+      loading: '~@/components/weui/loading/loading',
+    },
+  }
+</config>

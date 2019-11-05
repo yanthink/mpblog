@@ -12,6 +12,7 @@
   }
 
   .commentable {
+    margin-top: 2px;
     navigator {
       color: #595959 !important;
       background-color: #f2f2f2;
@@ -407,6 +408,10 @@
       if (top_comment) {
         setTimeout(() => this.anchor = `comment-${top_comment}`, 0);
       }
+    },
+
+    onUnload () {
+      this._watcher.teardown();
     },
   });
 </script>

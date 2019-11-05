@@ -57,16 +57,13 @@
           </view>
 
           <cells ext-class="menu">
-            <cell :link="true" :hover="true">
+            <cell :link="true" url="/pages/account/favorites/index" :hover="true">
               <view>我的收藏</view>
             </cell>
-            <cell :link="true" :hover="true">
+            <cell :link="true" url="/pages/account/comments/index" :hover="true">
               <view>我的评论</view>
             </cell>
-            <cell :link="true" :hover="true">
-              <view>我的回复</view>
-            </cell>
-            <cell :link="true" :hover="true">
+            <cell :link="true" url="/pages/account/likers/index" :hover="true">
               <view>我的点赞</view>
             </cell>
           </cells>
