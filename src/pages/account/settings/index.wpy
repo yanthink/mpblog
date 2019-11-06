@@ -1,0 +1,212 @@
+<style lang="less">
+  .weui-vcode-btn {
+    height: auto;
+    line-height: 1;
+    padding-right: 0;
+
+    &.disabled {
+      color: rgba(0, 0, 0, .5);
+    }
+  }
+</style>
+
+<template>
+  <toptips :msg="error" type="error" :show="!!error"></toptips>
+  <view class="page">
+    <view class="page__bd">
+      <view class="weui-panel weui-panel_access">
+        <form id="form" :rules="rules" :models="formData">
+          <cells title="基本设置" footer="用户名只能修改一次，请谨慎操作！">
+            <cell prop="username" title="用户名">
+              <input
+                v-model="formData.username"
+                data-field="username"
+                class="weui-input"
+                placeholder="中、英、数、_，不能以下划线开头和结尾。"
+                :disabled="formData.cache.username_modify_count > 0"
+              />
+            </cell>
+            <cell prop="email" title="邮箱">
+              <input v-model="formData.email" data-field="email" class="weui-input" placeholder="请输入邮箱" />
+            </cell>
+            <cell prop="email_code" title="验证码" v-if="showEmailCode">
+              <input
+                v-model="formData.email_code"
+                data-field="email_code"
+                class="weui-input"
+                placeholder="识别码：{{identifyingCode}}"
+              />
+              <view
+                slot="footer"
+                class="weui-vcode-btn"
+                :class="{disabled: !!emailCodeCountDown}"
+                @tap="onSendEmailCode"
+              >
+                {{emailCodeBtnText}}
+              </view>
+            </cell>
+          </cells>
+
+          <cells title="通知设置" footer="开启后系统在你离线时将以邮件的形式通知">
+            <cell prop="settings.comment_email_notify" title="评论通知">
+              <view slot="footer">
+                <switch v-model="formData.settings.comment_email_notify"></switch>
+              </view>
+            </cell>
+            <cell prop="settings.liked_email_notify" title="点赞通知">
+              <view slot="footer">
+                <switch v-model="formData.settings.liked_email_notify"></switch>
+              </view>
+            </cell>
+          </cells>
+
+          <view class="weui-btn-area">
+            <button class="weui-btn" type="primary" @tap="submitForm">应用修改</button>
+          </view>
+        </form>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from '@wepy/core';
+  import Debounce from 'lodash-decorators/debounce';
+  import mapAuthState from '@/mixins/mapAuthState';
+  import * as services from './services';
+
+  wepy.page({
+    mixins: [mapAuthState],
+
+    data: {
+      error: '',
+      rules: [
+        {
+          name: 'username',
+          rules: [
+            { required: true, message: '请输入您的用户名!' },
+            { pattern: /^(?!_)(?!.*?_$)[a-zA-Z0-9_\u4e00-\u9fa5]{1,10}$/, message: '用户名格式不正确!' },
+          ],
+        },
+        {
+          name: 'email',
+          rules: [
+            { email: true, message: '邮箱格式不正确!' },
+          ],
+        },
+      ],
+      formData: {},
+      emailCodeSending: false,
+      emailCodeCountDown: 0,
+      identifyingCode: '',
+    },
+
+    computed: {
+      showEmailCode () {
+        const bool = this.formData.email !== this.user.email && /^[\w-]+@[a-z0-9]+\.[a-z]+$/i.test(this.formData.email);
+        const rules = this.rules.filter(r => r.name !== 'email_code');
+        if (bool) {
+          rules.push({
+            name: 'email_code',
+            rules: [
+              { required: true, message: '请填写验证码!' },
+              { pattern: /^\d{4}$/, message: '验证码格式不正确!' },
+            ],
+          });
+        }
+        this.rules = rules;
+        return bool;
+      },
+
+      emailCodeBtnText () {
+        return this.emailCodeCountDown ? `${this.emailCodeCountDown} second` : '获取验证码';
+      },
+    },
+
+    methods: {
+      @Debounce(600)
+      submitForm () {
+        this.$wx.selectComponent('#form').validate(async (valid, errors) => {
+          if (!valid) {
+            console.info(errors);
+            const firstError = Object.keys(errors);
+            if (firstError.length) {
+              this.error = errors[firstError[0]].message;
+            }
+            return;
+          }
+
+          await services.updateBaseInfo({
+            username: this.formData.username,
+            email: this.formData.email,
+            email_code: this.formData.email_code,
+            identifyingCode: this.identifyingCode,
+          });
+
+          const { data: user } = await services.updateSettings({ settings: this.formData.settings });
+
+          this.interval && clearInterval(this.interval);
+
+          this.$app.$store.commit('auth/setUser', user);
+
+          wx.showToast({
+            title: '修改成功！',
+            icon: 'none',
+          });
+        });
+      },
+
+      @Debounce(600)
+      async onSendEmailCode () {
+        if (!this.showEmailCode || this.emailCodeSending || !!this.emailCodeCountDown) return;
+
+        this.identifyingCode = '';
+        this.emailCodeSending = true;
+
+        try {
+          const { data: { identifyingCode } } = await services.sendEmailCode(this.formData.email);
+          this.identifyingCode = identifyingCode;
+        } finally {
+          this.emailCodeSending = false;
+        }
+
+        this.runSendEmailCodeCountDown();
+      },
+
+      runSendEmailCodeCountDown () {
+        let countDown = 119;
+        this.emailCodeCountDown = countDown;
+
+        this.interval = setInterval(() => {
+          countDown -= 1;
+          this.emailCodeCountDown = countDown;
+          if (countDown === 0) {
+            clearInterval(this.interval);
+          }
+        }, 1000);
+      },
+    },
+
+    created () {
+      this.formData = { ...this.user };
+    },
+
+    onUnload () {
+      this.interval && clearInterval(this.interval);
+      this._watcher.teardown();
+    },
+  })
+  ;
+</script>
+
+<config>
+  {
+    navigationBarTitleText: '个人设置',
+    usingComponents: {
+      toptips: '~@/components/weui/toptips/toptips',
+      form: '~@/components/weui/form/form',
+      cells: '~@/components/weui/cells/cells',
+      cell: '~@/components/weui/cell/cell',
+    },
+  }
+</config>

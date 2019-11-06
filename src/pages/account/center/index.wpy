@@ -76,6 +76,12 @@
               </view>
             </cell>
           </cells>
+
+          <cells ext-class="menu">
+            <cell :link="true" url="/pages/account/settings/index" :hover="true">
+              <view>个人设置</view>
+            </cell>
+          </cells>
         </view>
       </authorized-check>
     </view>

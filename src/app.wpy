@@ -62,6 +62,7 @@
       'pages/account/comments/index',
       'pages/account/likers/index',
       'pages/account/notifications/index',
+      'pages/account/settings/index',
       'pages/auth/scan-login',
     ],
     window: {

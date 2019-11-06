@@ -10,6 +10,9 @@
 
     .weui-media-box {
       padding: 0;
+      &:before {
+        border: none;
+      }
     }
   }
 
