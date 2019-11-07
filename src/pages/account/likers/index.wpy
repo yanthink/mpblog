@@ -259,7 +259,7 @@
     },
 
     onPullDownRefresh () {
-      this.appendFetchLikers();
+      this.fetchLikers();
     },
 
     onReachBottom () {

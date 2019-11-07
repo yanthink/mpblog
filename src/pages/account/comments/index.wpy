@@ -217,7 +217,7 @@
     },
 
     onPullDownRefresh () {
-      this.appendFetchComments();
+      this.fetchComments();
     },
 
     onReachBottom () {

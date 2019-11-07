@@ -142,7 +142,7 @@
     },
 
     onPullDownRefresh () {
-      this.appendFetchFavorites();
+      this.fetchFavorites();
     },
 
     onReachBottom () {

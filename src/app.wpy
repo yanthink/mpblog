@@ -21,6 +21,7 @@
   import moment from 'moment';
   import 'moment/locale/zh-cn';
   import eventHub from '@/common/eventHub';
+  import { checkVersionUpdate } from '@/utils/utils';
 
   moment.locale('zh-cn');
 
@@ -41,6 +42,8 @@
     onLaunch () {
       this.$store = this.$options.store;
       this.$store.dispatch('auth/checkUserToken');
+
+      checkVersionUpdate();
 
       eventHub.$on('http-error', (error) => {
         if (error.response.statusCode === 401 && this.$store.state.auth.token) {
