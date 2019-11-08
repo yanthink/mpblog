@@ -13,6 +13,7 @@
 
   .commentable {
     margin-top: 2px;
+
     navigator {
       color: #595959 !important;
       background-color: #f2f2f2;
@@ -123,6 +124,17 @@
     width: 24px !important;
     height: 24px !important;
   }
+
+  .authorize-btn {
+    font-size: 15px;
+    color: #696969;
+    border: 0;
+    border-radius: 0;
+    padding: 10px 5px;
+    text-align: center;
+    background-color: #f7f7f7;
+    border-top: 1px solid #e5e5e5;
+  }
 </style>
 
 <template>
@@ -183,7 +195,7 @@
       </view>
 
       <authorized-check :authorized="authorized">
-        <view class="form-wrap">
+        <view class="form-wrap" v-if="authorized">
           <textarea
             class="textarea {{ systemInfo.platform }}__textarea"
             :placeholder="!parent.id || parent.id === comment.id ? '写评论...': '@'+parent.user.username"
@@ -191,6 +203,7 @@
             :auto-height="true"
             :show-confirm-bar="false"
             :focus="textareaFocus"
+            :cursor-spacing="16"
             @focus="onTextareaFocus"
           >
           </textarea>
@@ -209,6 +222,9 @@
               发布
             </view>
           </view>
+        </view>
+        <view class="authorize-btn" v-else>
+          点击此处授权，即可评论文章😆
         </view>
       </authorized-check>
     </view>

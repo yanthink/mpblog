@@ -47,6 +47,7 @@
       -webkit-line-clamp: 3;
       font-size: 14px;
       line-height: 1.4;
+      word-break: break-all;
     }
 
     .timeago {
