@@ -368,7 +368,7 @@
       },
 
       mapMatchImages (commentable = {}) {
-        const images = matchImages(commentable.content.markdown);
+        const images = matchImages(commentable.content.combine_markdown);
 
         if (images.length === 0 && commentable.preview) {
           images.unshift(commentable.preview);

@@ -126,7 +126,7 @@
 
       mapMatchImages (articles = []) {
         return articles.map(article => {
-          const images = matchImages(article.content.markdown);
+          const images = matchImages(article.content.combine_markdown);
 
           if (images.length === 0 && article.preview) {
             images.unshift(article.preview);
