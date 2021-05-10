@@ -19,7 +19,7 @@
     "@wepy/core": "^2.0.0-alpha.9",
     "@wepy/x": "^2.0.2",
     "laravel-echo": "^1.6.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "lodash-decorators": "^6.0.1",
     "moment": "^2.24.0",
     "qs": "^6.9.0"
