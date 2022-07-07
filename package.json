@@ -21,7 +21,7 @@
     "laravel-echo": "^1.6.1",
     "lodash": "^4.17.15",
     "lodash-decorators": "^6.0.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "qs": "^6.9.0"
   },
   "devDependencies": {
