@@ -22,7 +22,7 @@
     "lodash": "^4.17.15",
     "lodash-decorators": "^6.0.1",
     "moment": "^2.24.0",
-    "qs": "^6.9.0"
+    "qs": "^6.9.7"
   },
   "devDependencies": {
     "@babel/core": "^7.1.0",
